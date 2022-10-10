@@ -1,0 +1,64 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - master
+  
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  tests:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-20.04", "macos-10.15", "macos-11"]
+
+    name: Run Tests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.17"
+
+      - name: Set up Terramate
+        run: go install github.com/mineiros-io/terramate/cmd/terramate@v0.1.35
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 0.14.8
+          terraform_wrapper: false
+
+      - name: Check Terraform Formatting
+        run: terraform fmt -recursive -check -no-color
+
+      - name: Check Terramate Formatting
+        run: terramate fmt --check
+
+      - name: List all Stacks
+        run: terramate list
+
+      - name: Initialize Stacks
+        run: terramate run -- terraform init
+
+      - name: Validate Stacks
+        run: terramate run -- terraform validate
+
+  done:
+    name: Static Analysis
+    runs-on: ubuntu-20.04
+    needs: tests
+
+    steps:
+      - name: Done
+        run: "true"
