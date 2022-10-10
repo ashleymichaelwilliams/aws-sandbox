@@ -1,7 +1,7 @@
 globals {
   region = global.terraform_aws_provider_region
 
-  environment = "dev"
+  environment = "prod"
 
   tags = {
     env   = global.environment

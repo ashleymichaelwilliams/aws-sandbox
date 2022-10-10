@@ -5,29 +5,32 @@ module "vpc" {
   azs = [
     "us-west-2a",
     "us-west-2b",
+    "us-west-2c",
   ]
-  cidr               = "10.0.0.0/16"
+  cidr               = "10.1.0.0/16"
   create_vpc         = true
   enable_nat_gateway = true
-  name               = "dev"
+  name               = "prod"
   private_subnet_tags = {
     tier = "private"
   }
   private_subnets = [
-    "10.0.1.0/24",
-    "10.0.2.0/24",
+    "10.1.1.0/24",
+    "10.1.2.0/24",
+    "10.1.3.0/24",
   ]
   public_subnet_tags = {
     tier = "public"
   }
   public_subnets = [
-    "10.0.11.0/24",
-    "10.0.12.0/24",
+    "10.1.11.0/24",
+    "10.1.12.0/24",
+    "10.1.13.0/24",
   ]
   source = "terraform-aws-modules/vpc/aws"
   tags = {
-    env   = "dev"
-    stack = "VPC - oregon-dev"
+    env   = "prod"
+    stack = "VPC - oregon-prod"
     team  = "netops"
   }
   version = "3.16.0"
