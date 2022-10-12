@@ -168,7 +168,7 @@ module "eks" {
       security_group_description     = "EKS managed node group spot instance example security group"
       security_group_tags = {
         Purpose                                = "Protector of the kubelet"
-        "karpenter.sh/discovery/${local.name}" = "${local.name}"
+        "karpenter.sh/discovery/${local.name}" = local.name
       }
       security_group_rules = {
         phoneOut = {
@@ -226,6 +226,9 @@ module "eks" {
       type                          = "ingress"
       source_cluster_security_group = true
     }
+  }
+  node_security_group_tags = {
+    "karpenter.sh/discovery/${local.name}" = local.name
   }
   source     = "terraform-aws-modules/eks/aws"
   subnet_ids = data.terraform_remote_state.vpc.outputs.private_subnets

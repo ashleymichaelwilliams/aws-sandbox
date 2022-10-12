@@ -78,8 +78,6 @@ generate_hcl "_terramate_generated_karpenter.tf" {
         # force field manager conflicts to be overridden
         force_conflicts = true
       }
-
-
     }
 
 
@@ -124,7 +122,6 @@ generate_hcl "_terramate_generated_karpenter.tf" {
       depends_on = [
         kubernetes_manifest.karpenter_provisioner
       ]
-
     }
 
   }

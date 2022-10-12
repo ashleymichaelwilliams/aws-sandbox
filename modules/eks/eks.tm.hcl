@@ -111,6 +111,10 @@ generate_hcl "_terramate_generated_eks.tf" {
           source_cluster_security_group = true
         }
       }
+      
+      node_security_group_tags = {
+        "karpenter.sh/discovery/${local.name}" = local.name
+      }
 
       eks_managed_node_group_defaults = {
         ami_type       = "AL2_x86_64"
@@ -213,7 +217,7 @@ generate_hcl "_terramate_generated_eks.tf" {
           security_group_description     = "EKS managed node group spot instance example security group"
           security_group_tags = {
             Purpose                                = "Protector of the kubelet"
-            "karpenter.sh/discovery/${local.name}" = "${local.name}"
+            "karpenter.sh/discovery/${local.name}" = local.name
           }
           security_group_rules = {
             phoneOut = {
@@ -378,20 +382,6 @@ generate_hcl "_terramate_generated_eks.tf" {
       monitoring {
         enabled = true
       }
-
-      # Disabling due to https://github.com/hashicorp/terraform-provider-aws/issues/23766
-      # network_interfaces {
-      #   associate_public_ip_address = false
-      #   delete_on_termination       = true
-      # }
-
-      # if you want to use a custom AMI
-      # image_id      = var.ami_id
-
-      # If you use a custom AMI, you need to supply via user-data, the bootstrap script as EKS DOESNT merge its managed user-data then
-      # you can add more than the minimum code you see in the template, e.g. install SSM agent, see https://github.com/aws/containers-roadmap/issues/593#issuecomment-577181345
-      # (optionally you can use https://registry.terraform.io/providers/hashicorp/cloudinit/latest/docs/data-sources/cloudinit_config to render the script, example: https://github.com/terraform-aws-modules/terraform-aws-eks/pull/997#issuecomment-705286151)
-      # user_data = base64encode(data.template_file.launch_template_userdata.rendered)
 
       tag_specifications {
         resource_type = "instance"
