@@ -3,6 +3,8 @@ globals {
 
   environment = "dev"
 
+  eks_cluster_name = "ex-eks"
+
   tags = {
     env   = global.environment
     team  = "devops"

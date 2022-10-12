@@ -13,31 +13,19 @@ data "terraform_remote_state" "vpc" {
     ]
   }
 }
-provider "kubernetes" {
-  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-  host                   = module.eks.cluster_endpoint
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    args = [
-      "eks",
-      "get-token",
-      "--cluster-name",
-      module.eks.cluster_id,
-    ]
-    command = "aws"
-  }
+data "aws_partition" "current" {
+}
+data "aws_caller_identity" "current" {
 }
 locals {
   cluster_version = "1.22"
-  name            = "ex-${replace(basename(path.cwd), "_", "-")}"
+  name            = "ex-eks"
+  partition       = data.aws_partition.current.partition
   region          = "us-west-2"
   tags = {
-    Example    = local.name
     GithubRepo = "terraform-aws-eks"
     GithubOrg  = "terraform-aws-modules"
   }
-}
-data "aws_caller_identity" "current" {
 }
 module "eks" {
   cluster_addons = {
@@ -85,122 +73,16 @@ module "eks" {
   }
   eks_managed_node_groups = {
 
-    # Default node group - as provided by AWS EKS
-    default_node_group = {
-
-      create_launch_template = false
-      launch_template_name   = ""
-
-      disk_size = 50
-
-      # Remote access cannot be specified with a launch template
-      remote_access = {
-        ec2_ssh_key = aws_key_pair.this.key_name
-        source_security_group_ids = [
-          aws_security_group.remote_access.id,
-        ]
-      }
-    }
-
-    ### [COMMENTED OUT] ###
-    # Default node group - as provided by AWS EKS using Bottlerocket
-    # bottlerocket_default = {
-    #   # By default, the module creates a launch template to ensure tags are propagated to instances, etc.,
-    #   # so we need to disable it to use the default template provided by the AWS EKS managed node group service
-    #   create_launch_template = false
-    #   launch_template_name   = ""
-
-    #   ami_type = "BOTTLEROCKET_x86_64"
-    #   platform = "bottlerocket"
-    # }
-
-    ### [COMMENTED OUT] ###
-    # Adds to the AWS provided user data
-    # bottlerocket_add = {
-    #   ami_type = "BOTTLEROCKET_x86_64"
-    #   platform = "bottlerocket"
-
-    #   # this will get added to what AWS provides
-    #   bootstrap_extra_args = <<-EOT
-    #   # extra args added
-    #   [settings.kernel]
-    #   lockdown = "integrity"
-    #   EOT
-    # }
-
-    ### [COMMENTED OUT] ###
-    # Custom AMI, using module provided bootstrap data
-    # bottlerocket_custom = {
-    #   # Current bottlerocket AMI
-    #   ami_id   = data.aws_ami.eks_default_bottlerocket.image_id
-    #   platform = "bottlerocket"
-
-    #   # use module user data template to boostrap
-    #   enable_bootstrap_user_data = true
-    #   # this will get added to the template
-    #   bootstrap_extra_args = <<-EOT
-    #   # extra args added
-    #   [settings.kernel]
-    #   lockdown = "integrity"
-    #   [settings.kubernetes.node-labels]
-    #   "label1" = "foo"
-    #   "label2" = "bar"
-    #   [settings.kubernetes.node-taints]
-    #   "dedicated" = "experimental:PreferNoSchedule"
-    #   "special" = "true:NoSchedule"
-    #   EOT
-    # }
-
-    ### [COMMENTED OUT] ###
-    # Use existing/external launch template
-    # external_lt = {
-    #   create_launch_template  = false
-    #   launch_template_name    = aws_launch_template.external.name
-    #   launch_template_version = aws_launch_template.external.default_version
-    # }
-
-    ### [COMMENTED OUT] ###
-    # Use a custom AMI
-    # custom_ami = {
-    #   ami_type = "AL2_ARM_64"
-    #   # Current default AMI used by managed node groups - pseudo "custom"
-    #   ami_id = data.aws_ami.eks_default_arm.image_id
-
-    #   enable_bootstrap_user_data = true
-
-    #   instance_types = ["t4g.medium"]
-    # }
-
-    ### [COMMENTED OUT] ###
-    # Demo of containerd usage when not specifying a custom AMI ID
-    # (merged into user data before EKS MNG provided user data)
-    # containerd = {
-    #   name = "containerd"
-
-    #   # See issue https://github.com/awslabs/amazon-eks-ami/issues/844
-    #   pre_bootstrap_user_data = <<-EOT
-    #   #!/bin/bash
-    #   set -ex
-    #   cat <<-EOF > /etc/profile.d/bootstrap.sh
-    #   export CONTAINER_RUNTIME="containerd"
-    #   export USE_MAX_PODS=false
-    #   export KUBELET_EXTRA_ARGS="--max-pods=110"
-    #   EOF
-    #   # Source extra environment variables in bootstrap script
-    #   sed -i '/^set -o errexit/a\\nsource /etc/profile.d/bootstrap.sh' /etc/eks/bootstrap.sh
-    #   EOT
-    # }
-
-    # Complete
-    complete = {
-      name            = "complete-eks-mng"
+    # Spot Instance Managed Node Group managed by Karpenter
+    spot = {
+      name            = "spot-eks-mng"
       use_name_prefix = true
 
       subnet_ids = data.terraform_remote_state.vpc.outputs.private_subnets
 
-      min_size     = 3
+      min_size     = 2
       max_size     = 5
-      desired_size = 3
+      desired_size = 2
 
       ami_id                     = data.aws_ami.eks_default.image_id
       enable_bootstrap_user_data = true
@@ -270,19 +152,24 @@ module "eks" {
       }
 
       create_iam_role          = true
-      iam_role_name            = "eks-managed-node-group-complete-example"
       iam_role_use_name_prefix = false
-      iam_role_description     = "EKS managed node group complete example role"
+      iam_role_name            = "eks-managed-node-group-spot-example"
+      iam_role_description     = "EKS managed node group spot instance example role"
       iam_role_tags = {
         Purpose = "Protector of the kubelet"
       }
       iam_role_additional_policies = [
         "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",
+        "arn:${local.partition}:iam::aws:policy/AmazonSSMManagedInstanceCore",
       ]
       create_security_group          = true
-      security_group_name            = "eks-managed-node-group-complete-example"
       security_group_use_name_prefix = false
-      security_group_description     = "EKS managed node group complete example security group"
+      security_group_name            = "eks-managed-node-group-spot-example"
+      security_group_description     = "EKS managed node group spot instance example security group"
+      security_group_tags = {
+        Purpose                                = "Protector of the kubelet"
+        "karpenter.sh/discovery/${local.name}" = "${local.name}"
+      }
       security_group_rules = {
         phoneOut = {
           description = "Hello CloudFlare"
@@ -303,15 +190,14 @@ module "eks" {
           source_cluster_security_group = true # bit of reflection lookup
         }
       }
-      security_group_tags = {
-        Purpose = "Protector of the kubelet"
-      }
 
       tags = {
-        ExtraTag = "EKS managed node group complete example"
+        ExtraTag                               = "EKS managed node group spot example"
+        "karpenter.sh/discovery/${local.name}" = local.name
       }
     }
   }
+  enable_irsa               = true
   manage_aws_auth_configmap = true
   node_security_group_additional_rules = {
     ingress_self_all = {
@@ -332,14 +218,22 @@ module "eks" {
         "0.0.0.0/0",
       ]
     }
+    ingress_karpenter_webhook_tcp = {
+      description                   = "Control plane invoke Karpenter webhook"
+      protocol                      = "tcp"
+      from_port                     = 8443
+      to_port                       = 8443
+      type                          = "ingress"
+      source_cluster_security_group = true
+    }
   }
   source     = "terraform-aws-modules/eks/aws"
   subnet_ids = data.terraform_remote_state.vpc.outputs.private_subnets
-  tags = {
+  tags = merge({
     env   = "dev"
     stack = "dev-oregon-eks"
     team  = "devops"
-  }
+  }, local.tags)
   version = "18.30.0"
   vpc_id  = data.terraform_remote_state.vpc.outputs.vpc_id
 }
@@ -614,5 +508,89 @@ resource "aws_autoscaling_group_tag" "cluster_autoscaler_label_tags" {
     key                 = each.value.key
     propagate_at_launch = false
     value               = each.value.value
+  }
+}
+provider "helm" {
+  kubernetes {
+    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+    host                   = module.eks.cluster_endpoint
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      args = [
+        "eks",
+        "get-token",
+        "--cluster-name",
+        module.eks.cluster_id,
+      ]
+      command = "aws"
+    }
+  }
+}
+provider "kubernetes" {
+  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+  host                   = module.eks.cluster_endpoint
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    args = [
+      "eks",
+      "get-token",
+      "--cluster-name",
+      module.eks.cluster_id,
+    ]
+    command = "aws"
+  }
+}
+module "karpenter_irsa" {
+  attach_cluster_autoscaler_policy   = true
+  attach_karpenter_controller_policy = true
+  attach_vpc_cni_policy              = true
+  karpenter_controller_cluster_id    = module.eks.cluster_id
+  karpenter_controller_node_iam_role_arns = [
+    module.eks.eks_managed_node_groups["spot"].iam_role_arn,
+  ]
+  karpenter_controller_ssm_parameter_arns = [
+    "arn:${local.partition}:ssm:*:*:parameter/aws/service/*",
+  ]
+  karpenter_tag_key = "karpenter.sh/discovery/${local.name}"
+  oidc_providers = {
+    main = {
+      provider_arn = module.eks.oidc_provider_arn
+      namespace_service_accounts = [
+        "karpenter:karpenter",
+      ]
+    }
+  }
+  role_name           = "karpenter-controller-${local.name}"
+  source              = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version             = "~> 4.21.1"
+  vpc_cni_enable_ipv4 = true
+}
+resource "aws_iam_instance_profile" "karpenter" {
+  name = "KarpenterNodeInstanceProfile-${local.name}"
+  role = module.eks.eks_managed_node_groups["spot"].iam_role_name
+}
+resource "helm_release" "karpenter" {
+  chart            = "karpenter"
+  create_namespace = true
+  name             = "karpenter"
+  namespace        = "karpenter"
+  repository       = "https://charts.karpenter.sh"
+  version          = "v0.8.2"
+  wait             = true
+  set {
+    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+    value = module.karpenter_irsa.iam_role_arn
+  }
+  set {
+    name  = "clusterName"
+    value = module.eks.cluster_id
+  }
+  set {
+    name  = "clusterEndpoint"
+    value = module.eks.cluster_endpoint
+  }
+  set {
+    name  = "aws.defaultInstanceProfile"
+    value = aws_iam_instance_profile.karpenter.name
   }
 }

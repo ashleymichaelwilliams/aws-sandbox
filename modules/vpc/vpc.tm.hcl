@@ -18,15 +18,23 @@ generate_hcl "_terramate_generated_vpc.tf" {
 
       private_subnets = global.private_subnets
       private_subnet_tags = {
-        tier = "private"
+        tier                                               = "private"
+        "kubernetes.io/cluster/${global.eks_cluster_name}" = "shared"
+        "kubernetes.io/role/internal-elb"                  = 1
+        
+        # Tags subnets for Karpenter auto-discovery
+        "karpenter.sh/discovery/${global.eks_cluster_name}" = global.eks_cluster_name
       }
 
       public_subnets = global.public_subnets
       public_subnet_tags = {
-        tier = "public"
+        tier                                               = "public"
+        "kubernetes.io/cluster/${global.eks_cluster_name}" = "shared"
+        "kubernetes.io/role/elb"                           = 1
       }
 
-      enable_nat_gateway = true
+      enable_nat_gateway   = true
+      enable_dns_hostnames = true
 
       tags = global.tags
     }
