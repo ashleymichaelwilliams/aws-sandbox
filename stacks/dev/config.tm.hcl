@@ -5,7 +5,7 @@ globals {
 
   tags = {
     env   = global.environment
-    team  = "netops"
+    team  = "devops"
     stack = terramate.stack.name
   }
 }

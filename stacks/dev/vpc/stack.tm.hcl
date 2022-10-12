@@ -1,3 +1,3 @@
 stack {
-  name = "VPC - oregon-dev"
+  name = "dev-oregon-vpc"
 }

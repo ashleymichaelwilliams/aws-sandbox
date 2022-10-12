@@ -3,6 +3,7 @@
 generate_hcl "_terramate_generated_vpc.tf" {
   content {
 
+
     module "vpc" {
       source  = "terraform-aws-modules/vpc/aws"
       version = "3.16.0"
@@ -12,6 +13,8 @@ generate_hcl "_terramate_generated_vpc.tf" {
 
       cidr = global.vpc_cidr_block
       azs  = global.azs
+
+      enable_ipv6 = false
 
       private_subnets = global.private_subnets
       private_subnet_tags = {

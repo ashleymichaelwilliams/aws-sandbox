@@ -8,6 +8,7 @@ module "vpc" {
   ]
   cidr               = "10.0.0.0/16"
   create_vpc         = true
+  enable_ipv6        = false
   enable_nat_gateway = true
   name               = "dev"
   private_subnet_tags = {
@@ -27,8 +28,8 @@ module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
   tags = {
     env   = "dev"
-    stack = "VPC - oregon-dev"
-    team  = "netops"
+    stack = "dev-oregon-vpc"
+    team  = "devops"
   }
   version = "3.16.0"
 }

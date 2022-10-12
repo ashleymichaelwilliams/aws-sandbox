@@ -1,6 +1,6 @@
 # Generate '_terramate_generated_outputs.tf' in each stack
 
-generate_hcl "_terramate_generated_outputs.tf" {
+generate_hcl "_terramate_generated_vpc-outputs.tf" {
   content {
 
     output "vpc_id" {
