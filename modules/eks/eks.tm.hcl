@@ -111,7 +111,7 @@ generate_hcl "_terramate_generated_eks.tf" {
           source_cluster_security_group = true
         }
       }
-      
+
       node_security_group_tags = {
         "karpenter.sh/discovery/${local.name}" = local.name
       }
