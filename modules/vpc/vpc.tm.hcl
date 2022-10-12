@@ -21,7 +21,7 @@ generate_hcl "_terramate_generated_vpc.tf" {
         tier                                               = "private"
         "kubernetes.io/cluster/${global.eks_cluster_name}" = "shared"
         "kubernetes.io/role/internal-elb"                  = 1
-        
+
         # Tags subnets for Karpenter auto-discovery
         "karpenter.sh/discovery/${global.eks_cluster_name}" = global.eks_cluster_name
       }

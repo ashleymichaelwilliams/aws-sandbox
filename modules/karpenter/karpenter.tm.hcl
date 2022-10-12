@@ -26,7 +26,7 @@ generate_hcl "_terramate_generated_karpenter.tf" {
 
 
     locals {
-      name            = global.eks_cluster_name
+      name = global.eks_cluster_name
     }
 
     # Workaround - https://github.com/hashicorp/terraform-provider-kubernetes/issues/1380#issuecomment-967022975
@@ -69,15 +69,15 @@ generate_hcl "_terramate_generated_karpenter.tf" {
           karpenter.sh/discovery/${local.name}: ${local.name}
       ttlSecondsAfterEmpty: 30
     YAML
-    )
+      )
 
-    field_manager {
-      # set the name of the field manager
-      name = "spec.requirements"
+      field_manager {
+        # set the name of the field manager
+        name = "spec.requirements"
 
-      # force field manager conflicts to be overridden
-      force_conflicts = true
-    }
+        # force field manager conflicts to be overridden
+        force_conflicts = true
+      }
 
 
     }
@@ -111,15 +111,15 @@ generate_hcl "_terramate_generated_karpenter.tf" {
                 requests:
                   cpu: 1
     YAML
-    )
+      )
 
-    field_manager {
-      # set the name of the field manager
-      name = "spec.replicas"
+      field_manager {
+        # set the name of the field manager
+        name = "spec.replicas"
 
-      # force field manager conflicts to be overridden
-      force_conflicts = true
-    }
+        # force field manager conflicts to be overridden
+        force_conflicts = true
+      }
 
       depends_on = [
         kubernetes_manifest.karpenter_provisioner

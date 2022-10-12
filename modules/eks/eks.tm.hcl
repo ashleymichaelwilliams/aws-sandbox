@@ -212,7 +212,7 @@ generate_hcl "_terramate_generated_eks.tf" {
           security_group_name            = "eks-managed-node-group-spot-example"
           security_group_description     = "EKS managed node group spot instance example security group"
           security_group_tags = {
-            Purpose = "Protector of the kubelet"
+            Purpose                                = "Protector of the kubelet"
             "karpenter.sh/discovery/${local.name}" = "${local.name}"
           }
           security_group_rules = {
@@ -235,13 +235,13 @@ generate_hcl "_terramate_generated_eks.tf" {
           }
 
           tags = {
-            ExtraTag = "EKS managed node group spot example"
+            ExtraTag                               = "EKS managed node group spot example"
             "karpenter.sh/discovery/${local.name}" = local.name
           }
         }
       }
 
-      tags = merge(global.tags,local.tags)
+      tags = merge(global.tags, local.tags)
     }
 
     resource "aws_iam_role_policy_attachment" "additional" {
@@ -593,8 +593,8 @@ generate_hcl "_terramate_generated_eks.tf" {
       role_name = "karpenter-controller-${local.name}"
 
       attach_karpenter_controller_policy = true
-      attach_cluster_autoscaler_policy = true
-      
+      attach_cluster_autoscaler_policy   = true
+
       karpenter_controller_cluster_id = module.eks.cluster_id
       karpenter_controller_ssm_parameter_arns = [
         "arn:${local.partition}:ssm:*:*:parameter/aws/service/*"
@@ -623,7 +623,7 @@ generate_hcl "_terramate_generated_eks.tf" {
     resource "helm_release" "karpenter" {
       namespace        = "karpenter"
       create_namespace = true
-      
+
       wait = true
 
       name       = "karpenter"
