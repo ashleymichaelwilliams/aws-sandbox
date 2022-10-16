@@ -9,7 +9,6 @@ generate_hcl "_terramate_generated_karpenter.tf" {
       config = {
         path = "../eks/${global.local_tfstate_path}"
       }
-
     }
 
     provider "kubernetes" {
@@ -29,47 +28,71 @@ generate_hcl "_terramate_generated_karpenter.tf" {
       name = global.eks_cluster_name
     }
 
-    # Workaround - https://github.com/hashicorp/terraform-provider-kubernetes/issues/1380#issuecomment-967022975
-    resource "kubernetes_manifest" "karpenter_provisioner" {
+
+    resource "kubernetes_manifest" "karpenter_node_template" {
       manifest = yamldecode(<<YAML
-    apiVersion: karpenter.sh/v1alpha5
-    kind: Provisioner
-    metadata:
-      name: default
-    spec:
-      requirements:
-        - key: topology.kubernetes.io/zone
-          operator: In
-          values:
-            - us-west-2a
-            - us-west-2b
-        - key: karpenter.sh/capacity-type
-          operator: In
-          values:
-            - on-demand
-            - spot
-        - key: kubernetes.io/arch
-          operator: In
-          values:
-            - amd64
-        - key: node.kubernetes.io/instance-type
-          operator: In
-          values:
-            - t2.medium
-            - t3.medium
-      limits:
-        resources:
-          cpu: 1k
-      provider:
+      apiVersion: karpenter.k8s.aws/v1alpha1
+      kind: AWSNodeTemplate
+      metadata:
+        name: default
+      spec:
         subnetSelector:
           karpenter.sh/discovery/${local.name}: ${local.name}
         securityGroupSelector:
           karpenter.sh/discovery/${local.name}: ${local.name}
         tags:
           karpenter.sh/discovery/${local.name}: ${local.name}
-      ttlSecondsAfterEmpty: 30
+          CostCenter: "1234"
     YAML
       )
+
+    }
+
+
+    resource "kubernetes_manifest" "karpenter_provisioner" {
+      manifest = {
+        apiVersion = "karpenter.sh/v1alpha5"
+        kind       = "Provisioner"
+        metadata = {
+          name = "default"
+        }
+        spec = {
+          limits = {
+            resources = {
+              cpu    = global.kapenter_limits_cpu
+              memory = global.kapenter_limits_memory
+            }
+          }
+          providerRef = {
+            name = "default"
+          }
+          requirements = [
+            {
+              key      = "topology.kubernetes.io/zone"
+              operator = "In"
+              values   = ["us-west-2a", "us-west-2b"]
+            },
+            {
+              key      = "karpenter.sh/capacity-type"
+              operator = "In"
+              values   = ["on-demand", "spot"]
+            },
+            {
+              key      = "kubernetes.io/arch"
+              operator = "In"
+              values   = ["amd64"]
+            },
+            {
+              key      = "node.kubernetes.io/instance-type"
+              operator = "In"
+              values   = ["t2.medium", "t3.medium"]
+            }
+          ]
+          ttlSecondsAfterEmpty = 30
+        }
+      }
+
+
 
       field_manager {
         # set the name of the field manager
@@ -78,6 +101,10 @@ generate_hcl "_terramate_generated_karpenter.tf" {
         # force field manager conflicts to be overridden
         force_conflicts = true
       }
+
+      depends_on = [
+        kubernetes_manifest.karpenter_node_template
+      ]
     }
 
 
@@ -120,6 +147,7 @@ generate_hcl "_terramate_generated_karpenter.tf" {
       }
 
       depends_on = [
+        kubernetes_manifest.karpenter_node_template,
         kubernetes_manifest.karpenter_provisioner
       ]
     }

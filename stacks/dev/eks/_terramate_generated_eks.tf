@@ -226,6 +226,14 @@ module "eks" {
       type                          = "ingress"
       source_cluster_security_group = true
     }
+    ingress_allow_access_from_control_plane = {
+      description                   = "Allow access from control plane to webhook port of AWS load balancer controller"
+      protocol                      = "tcp"
+      from_port                     = 9443
+      to_port                       = 9443
+      type                          = "ingress"
+      source_cluster_security_group = true
+    }
   }
   node_security_group_tags = {
     "karpenter.sh/discovery/${local.name}" = local.name
@@ -577,8 +585,8 @@ resource "helm_release" "karpenter" {
   create_namespace = true
   name             = "karpenter"
   namespace        = "karpenter"
-  repository       = "https://charts.karpenter.sh"
-  version          = "v0.8.2"
+  repository       = "oci://public.ecr.aws/karpenter"
+  version          = "v0.18.0"
   wait             = true
   set {
     name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"

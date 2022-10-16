@@ -24,8 +24,9 @@ generate_hcl "_terramate_generated_eks.tf" {
     locals {
       name            = global.eks_cluster_name
       cluster_version = "1.22"
-      region          = global.terraform_aws_provider_region
-      partition       = data.aws_partition.current.partition
+
+      region    = global.region
+      partition = data.aws_partition.current.partition
 
       tags = {
         GithubRepo = "terraform-aws-eks"
@@ -107,6 +108,14 @@ generate_hcl "_terramate_generated_eks.tf" {
           protocol                      = "tcp"
           from_port                     = 8443
           to_port                       = 8443
+          type                          = "ingress"
+          source_cluster_security_group = true
+        }
+        ingress_allow_access_from_control_plane = {
+          description                   = "Allow access from control plane to webhook port of AWS load balancer controller"
+          protocol                      = "tcp"
+          from_port                     = 9443
+          to_port                       = 9443
           type                          = "ingress"
           source_cluster_security_group = true
         }
@@ -617,9 +626,9 @@ generate_hcl "_terramate_generated_eks.tf" {
       wait = true
 
       name       = "karpenter"
-      repository = "https://charts.karpenter.sh"
+      repository = "oci://public.ecr.aws/karpenter"
       chart      = "karpenter"
-      version    = "v0.8.2"
+      version    = "v0.18.0"
 
       set {
         name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
