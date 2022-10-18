@@ -6,7 +6,7 @@ FROM $OS:$VERSION
 
 # Set Env Variables
 ENV TF_VERSION='0.14.8'
-ENV TG_VERSION='0.28.24'
+ENV TG_VERSION='0.29.10'
 
 
 # Install Base Components
@@ -31,7 +31,8 @@ RUN git clone https://github.com/Homebrew/brew ~/.linuxbrew/Homebrew \
         tgenv \
         terramate \
         kubectl \
-        helm && \
+        helm \
+        FairwindsOps/tap/pluto && \
         tfenv install $TF_VERSION && tfenv use $TF_VERSION && \
         tgenv install $TG_VERSION && tgenv use $TG_VERSION
 

@@ -37,6 +37,10 @@ module "eks" {
       resolve_conflicts        = "OVERWRITE"
       service_account_role_arn = module.vpc_cni_irsa.iam_role_arn
     }
+    aws-ebs-csi-driver = {
+      resolve_conflicts        = "OVERWRITE"
+      service_account_role_arn = module.ebs_csi_irsa.iam_role_arn
+    }
   }
   cluster_encryption_config = [
     {
@@ -269,6 +273,21 @@ module "vpc_cni_irsa" {
   version             = "~> 4.12"
   vpc_cni_enable_ipv4 = true
   vpc_cni_enable_ipv6 = false
+}
+module "ebs_csi_irsa" {
+  attach_ebs_csi_policy = true
+  oidc_providers = {
+    main = {
+      provider_arn = module.eks.oidc_provider_arn
+      namespace_service_accounts = [
+        "kube-system:ebs-csi-controller-sa",
+      ]
+    }
+  }
+  role_name = "EBS-CSI-IRSA"
+  source    = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  tags      = local.tags
+  version   = "~> 4.12"
 }
 resource "aws_security_group" "additional" {
   name_prefix = "${local.name}-additional"
