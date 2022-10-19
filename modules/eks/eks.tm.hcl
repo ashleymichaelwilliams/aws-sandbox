@@ -51,6 +51,8 @@ generate_hcl "_terramate_generated_eks.tf" {
 
       create_cni_ipv6_iam_policy = false
 
+      cluster_enabled_log_types = ["audit", "api", "authenticator", "controllerManager", "scheduler"]
+
       cluster_addons = {
         coredns = {
           resolve_conflicts = "OVERWRITE"
@@ -308,8 +310,11 @@ generate_hcl "_terramate_generated_eks.tf" {
     resource "aws_security_group" "additional" {
       name_prefix = "${local.name}-additional"
       vpc_id      = data.terraform_remote_state.vpc.outputs.vpc_id
+      description = "Addional security group rules"
 
       ingress {
+        description = "Allow SSH from Private networks"
+
         from_port = 22
         to_port   = 22
         protocol  = "tcp"
@@ -335,6 +340,7 @@ generate_hcl "_terramate_generated_eks.tf" {
     resource "aws_kms_key" "ebs" {
       description             = "Customer managed key to encrypt EKS managed node group volumes"
       deletion_window_in_days = 7
+      enable_key_rotation     = true
       policy                  = data.aws_iam_policy_document.ebs.json
     }
 
@@ -395,93 +401,6 @@ generate_hcl "_terramate_generated_eks.tf" {
     }
 
 
-    resource "aws_launch_template" "external" {
-      name_prefix            = "external-eks-ex-"
-      description            = "EKS managed node group external launch template"
-      update_default_version = true
-
-      block_device_mappings {
-        device_name = "/dev/xvda"
-
-        ebs {
-          volume_size           = 50
-          volume_type           = "gp2"
-          delete_on_termination = true
-        }
-      }
-
-      monitoring {
-        enabled = true
-      }
-
-      tag_specifications {
-        resource_type = "instance"
-
-        tags = {
-          Name      = "external_lt"
-          CustomTag = "Instance custom tag"
-        }
-      }
-
-      tag_specifications {
-        resource_type = "volume"
-
-        tags = {
-          CustomTag = "Volume custom tag"
-        }
-      }
-
-      tag_specifications {
-        resource_type = "network-interface"
-
-        tags = {
-          CustomTag = "EKS example"
-        }
-      }
-
-      tags = {
-        CustomTag = "Launch template custom tag"
-      }
-
-      lifecycle {
-        create_before_destroy = true
-      }
-    }
-
-    resource "tls_private_key" "this" {
-      algorithm = "RSA"
-    }
-
-    resource "aws_key_pair" "this" {
-      key_name_prefix = local.name
-      public_key      = tls_private_key.this.public_key_openssh
-
-      tags = local.tags
-    }
-
-    resource "aws_security_group" "remote_access" {
-      name_prefix = "${local.name}-remote-access"
-      description = "Allow remote SSH access"
-      vpc_id      = data.terraform_remote_state.vpc.outputs.vpc_id
-
-      ingress {
-        description = "SSH access"
-        from_port   = 22
-        to_port     = 22
-        protocol    = "tcp"
-        cidr_blocks = ["10.0.0.0/8"]
-      }
-
-      egress {
-        from_port   = 0
-        to_port     = 0
-        protocol    = "-1"
-        cidr_blocks = ["0.0.0.0/0"]
-      }
-
-      tags = local.tags
-    }
-
     resource "aws_iam_policy" "node_additional" {
       name        = "${local.name}-additional"
       description = "Example usage of node additional policy"
@@ -512,25 +431,25 @@ generate_hcl "_terramate_generated_eks.tf" {
       }
     }
 
-    data "aws_ami" "eks_default_arm" {
-      most_recent = true
-      owners      = ["amazon"]
+    # data "aws_ami" "eks_default_arm" {
+    #   most_recent = true
+    #   owners      = ["amazon"]
 
-      filter {
-        name   = "name"
-        values = ["amazon-eks-arm64-node-${local.cluster_version}-v*"]
-      }
-    }
+    #   filter {
+    #     name   = "name"
+    #     values = ["amazon-eks-arm64-node-${local.cluster_version}-v*"]
+    #   }
+    # }
 
-    data "aws_ami" "eks_default_bottlerocket" {
-      most_recent = true
-      owners      = ["amazon"]
+    # data "aws_ami" "eks_default_bottlerocket" {
+    #   most_recent = true
+    #   owners      = ["amazon"]
 
-      filter {
-        name   = "name"
-        values = ["bottlerocket-aws-k8s-${local.cluster_version}-x86_64-*"]
-      }
-    }
+    #   filter {
+    #     name   = "name"
+    #     values = ["bottlerocket-aws-k8s-${local.cluster_version}-x86_64-*"]
+    #   }
+    # }
 
     ################################################################################
     # Tags for the ASG to support cluster-autoscaler scale up from 0

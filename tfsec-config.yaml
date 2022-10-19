@@ -1,0 +1,7 @@
+---
+exclude:
+  - aws-ec2-no-public-egress-sgr
+  - aws-ec2-no-public-ip-subnet
+  - aws-eks-no-public-cluster-access
+  - aws-iam-no-policy-wildcards
+  
