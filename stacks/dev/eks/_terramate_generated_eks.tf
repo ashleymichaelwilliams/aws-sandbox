@@ -227,8 +227,7 @@ module "eks" {
       type        = "egress"
       cidr_blocks = [
         "0.0.0.0/0",
-      ] #tfsec:ignore:aws-ec2-no-public-egress-sgr
-
+      ]
     }
     ingress_karpenter_webhook_tcp = {
       description                   = "Control plane invoke Karpenter webhook"
