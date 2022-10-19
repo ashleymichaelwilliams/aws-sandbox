@@ -51,7 +51,7 @@ generate_hcl "_terramate_generated_eks.tf" {
 
       create_cni_ipv6_iam_policy = false
 
-      cluster_enabled_log_types = [ "audit", "api", "authenticator", "controllerManager", "scheduler" ]
+      cluster_enabled_log_types = ["audit", "api", "authenticator", "controllerManager", "scheduler"]
 
       cluster_addons = {
         coredns = {
@@ -311,7 +311,7 @@ generate_hcl "_terramate_generated_eks.tf" {
       name_prefix = "${local.name}-additional"
       vpc_id      = data.terraform_remote_state.vpc.outputs.vpc_id
       description = "Allow SSH from Private networks"
-      
+
       ingress {
         from_port = 22
         to_port   = 22
