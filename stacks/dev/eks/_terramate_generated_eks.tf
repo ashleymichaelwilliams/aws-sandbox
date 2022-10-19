@@ -42,6 +42,13 @@ module "eks" {
       service_account_role_arn = module.ebs_csi_irsa.iam_role_arn
     }
   }
+  cluster_enabled_log_types = [
+    "audit",
+    "api",
+    "authenticator",
+    "controllerManager",
+    "scheduler",
+  ]
   cluster_encryption_config = [
     {
       provider_key_arn = aws_kms_key.eks.arn
@@ -290,6 +297,7 @@ module "ebs_csi_irsa" {
   version   = "~> 4.12"
 }
 resource "aws_security_group" "additional" {
+  description = "Allow SSH from Private networks"
   name_prefix = "${local.name}-additional"
   tags        = local.tags
   vpc_id      = data.terraform_remote_state.vpc.outputs.vpc_id
@@ -313,6 +321,7 @@ resource "aws_kms_key" "eks" {
 resource "aws_kms_key" "ebs" {
   deletion_window_in_days = 7
   description             = "Customer managed key to encrypt EKS managed node group volumes"
+  enable_key_rotation     = true
   policy                  = data.aws_iam_policy_document.ebs.json
 }
 data "aws_iam_policy_document" "ebs" {
@@ -379,78 +388,6 @@ data "aws_iam_policy_document" "ebs" {
     }
   }
 }
-resource "aws_launch_template" "external" {
-  description = "EKS managed node group external launch template"
-  name_prefix = "external-eks-ex-"
-  tags = {
-    CustomTag = "Launch template custom tag"
-  }
-  update_default_version = true
-  block_device_mappings {
-    device_name = "/dev/xvda"
-    ebs {
-      delete_on_termination = true
-      volume_size           = 50
-      volume_type           = "gp2"
-    }
-  }
-  monitoring {
-    enabled = true
-  }
-  tag_specifications {
-    resource_type = "instance"
-    tags = {
-      Name      = "external_lt"
-      CustomTag = "Instance custom tag"
-    }
-  }
-  tag_specifications {
-    resource_type = "volume"
-    tags = {
-      CustomTag = "Volume custom tag"
-    }
-  }
-  tag_specifications {
-    resource_type = "network-interface"
-    tags = {
-      CustomTag = "EKS example"
-    }
-  }
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-resource "tls_private_key" "this" {
-  algorithm = "RSA"
-}
-resource "aws_key_pair" "this" {
-  key_name_prefix = local.name
-  public_key      = tls_private_key.this.public_key_openssh
-  tags            = local.tags
-}
-resource "aws_security_group" "remote_access" {
-  description = "Allow remote SSH access"
-  name_prefix = "${local.name}-remote-access"
-  tags        = local.tags
-  vpc_id      = data.terraform_remote_state.vpc.outputs.vpc_id
-  ingress {
-    cidr_blocks = [
-      "10.0.0.0/8",
-    ]
-    description = "SSH access"
-    from_port   = 22
-    protocol    = "tcp"
-    to_port     = 22
-  }
-  egress {
-    cidr_blocks = [
-      "0.0.0.0/0",
-    ]
-    from_port = 0
-    protocol  = "-1"
-    to_port   = 0
-  }
-}
 resource "aws_iam_policy" "node_additional" {
   description = "Example usage of node additional policy"
   name        = "${local.name}-additional"
@@ -477,30 +414,6 @@ data "aws_ami" "eks_default" {
     name = "name"
     values = [
       "amazon-eks-node-${local.cluster_version}-v*",
-    ]
-  }
-}
-data "aws_ami" "eks_default_arm" {
-  most_recent = true
-  owners = [
-    "amazon",
-  ]
-  filter {
-    name = "name"
-    values = [
-      "amazon-eks-arm64-node-${local.cluster_version}-v*",
-    ]
-  }
-}
-data "aws_ami" "eks_default_bottlerocket" {
-  most_recent = true
-  owners = [
-    "amazon",
-  ]
-  filter {
-    name = "name"
-    values = [
-      "bottlerocket-aws-k8s-${local.cluster_version}-x86_64-*",
     ]
   }
 }
