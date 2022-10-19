@@ -13,13 +13,14 @@ jobs:
     name: 'Checkout Master Branch, Bumps the Tag Version and Create a Release'
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         ref: 'master'
+        fetch-depth: '0'
 
     - name: Bump Version and Push Tag
       id: create_tag
-      uses: anothrNick/github-tag-action@1.22.0
+      uses: anothrNick/github-tag-action@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         RELEASE_BRANCHES: master
