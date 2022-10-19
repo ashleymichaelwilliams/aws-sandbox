@@ -297,7 +297,7 @@ module "ebs_csi_irsa" {
   version   = "~> 4.12"
 }
 resource "aws_security_group" "additional" {
-  description = "Allow SSH from Private networks"
+  description = "Addional security group rules"
   name_prefix = "${local.name}-additional"
   tags        = local.tags
   vpc_id      = data.terraform_remote_state.vpc.outputs.vpc_id
@@ -307,9 +307,10 @@ resource "aws_security_group" "additional" {
       "172.16.0.0/12",
       "192.168.0.0/16",
     ]
-    from_port = 22
-    protocol  = "tcp"
-    to_port   = 22
+    description = "Allow SSH from Private networks"
+    from_port   = 22
+    protocol    = "tcp"
+    to_port     = 22
   }
 }
 resource "aws_kms_key" "eks" {

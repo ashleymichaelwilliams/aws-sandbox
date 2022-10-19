@@ -310,9 +310,11 @@ generate_hcl "_terramate_generated_eks.tf" {
     resource "aws_security_group" "additional" {
       name_prefix = "${local.name}-additional"
       vpc_id      = data.terraform_remote_state.vpc.outputs.vpc_id
-      description = "Allow SSH from Private networks"
+      description = "Addional security group rules"
 
       ingress {
+        description = "Allow SSH from Private networks"
+
         from_port = 22
         to_port   = 22
         protocol  = "tcp"
