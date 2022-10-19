@@ -45,7 +45,7 @@ generate_hcl "_terramate_generated_eks.tf" {
       subnet_ids = data.terraform_remote_state.vpc.outputs.private_subnets
 
       cluster_endpoint_private_access = true
-      cluster_endpoint_public_access  = true
+      cluster_endpoint_public_access  = true #tfsec:ignore:aws-eks-no-public-cluster-access
 
       enable_irsa = true
 
@@ -107,7 +107,7 @@ generate_hcl "_terramate_generated_eks.tf" {
           from_port   = 0
           to_port     = 0
           type        = "egress"
-          cidr_blocks = ["0.0.0.0/0"]
+          cidr_blocks = ["0.0.0.0/0"] #tfsec:ignore:aws-ec2-no-public-egress-sgr
         }
         ingress_karpenter_webhook_tcp = {
           description                   = "Control plane invoke Karpenter webhook"
@@ -416,7 +416,7 @@ generate_hcl "_terramate_generated_eks.tf" {
             Resource = "*"
           },
         ]
-      })
+      }) #tfsec:ignore:aws-iam-no-policy-wildcards
 
       tags = local.tags
     }

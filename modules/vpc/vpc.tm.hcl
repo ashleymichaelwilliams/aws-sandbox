@@ -26,7 +26,7 @@ generate_hcl "_terramate_generated_vpc.tf" {
         "karpenter.sh/discovery/${global.eks_cluster_name}" = global.eks_cluster_name
       }
 
-      public_subnets = global.public_subnets
+      public_subnets = global.public_subnets #tfsec:ignore:aws-ec2-no-public-ip-subnet
       public_subnet_tags = {
         tier                                               = "public"
         "kubernetes.io/cluster/${global.eks_cluster_name}" = "shared"
