@@ -1,6 +1,7 @@
-# Generate '_terramate_generated_eks.tf' in each stack
+# Generate '_terramate_generated_data-source.tf' in each stack for Local File-System
+generate_hcl "_terramate_generated_data-source.tf" {
+  condition = global.isLocal == true
 
-generate_hcl "_terramate_generated_eks.tf" {
   content {
 
     data "terraform_remote_state" "vpc" {
@@ -15,7 +16,37 @@ generate_hcl "_terramate_generated_eks.tf" {
         private_subnets = ["subnet-123456789"]
       }
     }
+  }
+}
 
+
+# Generate '_terramate_generated_data-source.tf' in each stack for Remote Terraform Cloud
+generate_hcl "_terramate_generated_data-source.tf" {
+  condition = global.isLocal == false
+
+  content {
+    data "terraform_remote_state" "vpc" {
+      backend = "remote"
+
+      config = {
+        organization = global.tfe_organization
+        workspaces = {
+          name = global.tfe_workspace
+        }
+      }
+
+      defaults = {
+        vpc_id          = "vpc-123456789"
+        private_subnets = ["subnet-123456789"]
+      }
+    }
+  }
+}
+
+
+# Generate '_terramate_generated_eks.tf' in each stack
+generate_hcl "_terramate_generated_eks.tf" {
+  content {
 
     data "aws_partition" "current" {}
     data "aws_caller_identity" "current" {}

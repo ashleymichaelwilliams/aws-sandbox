@@ -1,3 +1,4 @@
 stack {
-  name = "dev-oregon-vpc"
+  name = "AWS VPC Stack"
+  id   = "aws-vpc"
 }

@@ -1,18 +1,6 @@
 // TERRAMATE: GENERATED AUTOMATICALLY DO NOT EDIT
 // TERRAMATE: originated from generate_hcl block on /modules/eks/eks.tm.hcl
 
-data "terraform_remote_state" "vpc" {
-  backend = "local"
-  config = {
-    path = "../vpc/terraform.tfstate"
-  }
-  defaults = {
-    vpc_id = "vpc-123456789"
-    private_subnets = [
-      "subnet-123456789",
-    ]
-  }
-}
 data "aws_partition" "current" {
 }
 data "aws_caller_identity" "current" {
@@ -253,7 +241,7 @@ module "eks" {
   subnet_ids = data.terraform_remote_state.vpc.outputs.private_subnets
   tags = merge({
     env   = "dev"
-    stack = "dev-oregon-eks"
+    stack = "aws-eks"
     team  = "devops"
   }, local.tags)
   version = "18.30.0"

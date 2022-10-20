@@ -18,6 +18,10 @@ globals {
   tags = {
     env   = global.environment
     team  = "devops"
-    stack = terramate.stack.name
+    stack = terramate.stack.id
   }
+
+  # Backend Configuration 
+  isLocal = false # true==Local Backend or false==Terrform Cloud Backend  
+
 }

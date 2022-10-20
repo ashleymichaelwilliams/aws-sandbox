@@ -36,7 +36,7 @@ module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
   tags = {
     env   = "dev"
-    stack = "dev-oregon-vpc"
+    stack = "aws-vpc"
     team  = "devops"
   }
   version = "3.16.0"
