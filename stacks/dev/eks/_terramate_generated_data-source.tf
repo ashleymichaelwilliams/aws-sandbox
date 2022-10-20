@@ -6,7 +6,7 @@ data "terraform_remote_state" "vpc" {
   config = {
     organization = "adub-widgets"
     workspaces = {
-      name = "aws-eks-dev"
+      name = "aws-vpc-dev"
     }
   }
   defaults = {

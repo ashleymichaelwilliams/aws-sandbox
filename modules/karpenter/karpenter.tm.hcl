@@ -26,7 +26,7 @@ generate_hcl "_terramate_generated_data-source.tf" {
       config = {
         organization = global.tfe_organization
         workspaces = {
-          name = global.tfe_workspace
+          name = "aws-eks-${global.environment}"
         }
       }
     }

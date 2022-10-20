@@ -13,5 +13,8 @@ globals {
 
   # Terraform Cloud Configuration
   tfe_organization = "adub-widgets"
-  tfe_workspace    = "${terramate.stack.id}-${global.environment}" # Example Result:{aws-eks}-{dev}
+  tfe_workspace    = "${terramate.stack.id}-${global.environment}" 
+    # Usage: dynamically generate string which is the remote state "workspace" name of the 'current' stack/state.
+    # Example Result:{aws-eks}-{dev}
+
 }

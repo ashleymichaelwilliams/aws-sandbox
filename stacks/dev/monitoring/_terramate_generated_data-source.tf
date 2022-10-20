@@ -6,7 +6,7 @@ data "terraform_remote_state" "eks" {
   config = {
     organization = "adub-widgets"
     workspaces = {
-      name = "k8s-prometheus-dev"
+      name = "aws-eks-dev"
     }
   }
 }
