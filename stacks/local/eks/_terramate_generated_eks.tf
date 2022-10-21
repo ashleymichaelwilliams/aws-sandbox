@@ -11,8 +11,8 @@ locals {
   partition       = data.aws_partition.current.partition
   region          = "us-west-2"
   tags = merge({
-    env   = "dev"
-    stack = "aws-eks-dev"
+    env   = "local"
+    stack = "aws-eks-local"
     team  = "devops"
     },
     {
@@ -245,8 +245,8 @@ module "eks" {
   source     = "terraform-aws-modules/eks/aws"
   subnet_ids = data.terraform_remote_state.vpc.outputs.private_subnets
   tags = merge({
-    env   = "dev"
-    stack = "aws-eks-dev"
+    env   = "local"
+    stack = "aws-eks-local"
     team  = "devops"
   }, local.tags)
   version = "18.30.0"

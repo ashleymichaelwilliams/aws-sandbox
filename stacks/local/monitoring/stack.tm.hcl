@@ -1,8 +1,8 @@
 stack {
   name = "Prometheus Monitoring Stack"
-  id   = "k8s-prometheus-dev"
+  id   = "k8s-prometheus-local"
 
   after = [
-    "/stacks/dev/eks",
+    "/stacks/local/eks",
   ]
 }

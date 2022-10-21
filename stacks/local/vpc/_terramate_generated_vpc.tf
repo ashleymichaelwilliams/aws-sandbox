@@ -11,7 +11,7 @@ module "vpc" {
   enable_dns_hostnames = true
   enable_ipv6          = false
   enable_nat_gateway   = true
-  name                 = "dev"
+  name                 = "local"
   private_subnet_tags = {
     tier                              = "private"
     "kubernetes.io/cluster/ex-eks"    = "shared"
@@ -35,8 +35,8 @@ module "vpc" {
   ]
   source = "terraform-aws-modules/vpc/aws"
   tags = {
-    env   = "dev"
-    stack = "aws-vpc-dev"
+    env   = "local"
+    stack = "aws-vpc-local"
     team  = "devops"
   }
   version = "3.16.0"

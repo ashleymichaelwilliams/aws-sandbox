@@ -1,8 +1,8 @@
 stack {
   name = "AWS Load Balancer Controller Stack"
-  id   = "aws-alb-dev"
+  id   = "aws-alb-local"
 
   after = [
-    "/stacks/dev/eks",
+    "/stacks/local/eks",
   ]
 }

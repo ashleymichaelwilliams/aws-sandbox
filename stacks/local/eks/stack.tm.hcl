@@ -1,8 +1,8 @@
 stack {
   name = "AWS Elastic Kubernetes Service Stack"
-  id   = "aws-eks-dev"
+  id   = "aws-eks-local"
 
   after = [
-    "/stacks/dev/vpc",
+    "/stacks/local/vpc",
   ]
 }

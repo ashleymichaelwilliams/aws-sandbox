@@ -1,8 +1,8 @@
 stack {
   name = "Kubecost Cost Analyzer Stack"
-  id   = "k8s-kubecost-dev"
+  id   = "k8s-kubecost-local"
 
   after = [
-    "/stacks/dev/alb-controller",
+    "/stacks/local/alb-controller",
   ]
 }

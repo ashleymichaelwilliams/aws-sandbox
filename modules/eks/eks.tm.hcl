@@ -59,10 +59,11 @@ generate_hcl "_terramate_generated_eks.tf" {
       region    = global.region
       partition = data.aws_partition.current.partition
 
-      tags = {
+      tags = merge(global.tags, 
+      {
         GithubRepo = "terraform-aws-eks"
         GithubOrg  = "terraform-aws-modules"
-      }
+      })
     }
 
     module "eks" {

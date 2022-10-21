@@ -1,4 +1,4 @@
 stack {
   name = "AWS VPC Stack"
-  id   = "aws-vpc-dev"
+  id   = "aws-vpc-local"
 }
