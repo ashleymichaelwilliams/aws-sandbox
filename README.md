@@ -19,8 +19,8 @@
 
 ## Prerequisites:
 * aws-cli (v2.7)
-* terramate (v0.35.0+)
-* terraform (v0.14.8+)
+* terramate (v0.1.35+)
+* terraform (v1.2.9+)
 * kubectl (v1.19+)
 
 <br><br>

@@ -2,7 +2,10 @@
 // TERRAMATE: originated from generate_hcl block on /stacks/backend.tm.hcl
 
 terraform {
-  backend "local" {
-    path = "terraform.tfstate"
+  backend "remote" {
+    organization = "adub-widgets"
+    workspaces {
+      name = "k8s-prometheus-dev"
+    }
   }
 }

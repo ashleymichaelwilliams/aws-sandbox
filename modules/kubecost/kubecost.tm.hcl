@@ -1,6 +1,7 @@
-# Generate '_terramate_generated_kubecost.tf' in each stack
+# Generate '_terramate_generated_data-source.tf' in each stack for Local File-System
+generate_hcl "_terramate_generated_data-source.tf" {
+  condition = global.isLocal == true
 
-generate_hcl "_terramate_generated_kubecost.tf" {
   content {
 
     data "terraform_remote_state" "eks" {
@@ -10,7 +11,32 @@ generate_hcl "_terramate_generated_kubecost.tf" {
         path = "../eks/${global.local_tfstate_path}"
       }
     }
+  }
+}
 
+
+# Generate '_terramate_generated_data-source.tf' in each stack for Remote Terraform Cloud
+generate_hcl "_terramate_generated_data-source.tf" {
+  condition = global.isLocal == false
+
+  content {
+    data "terraform_remote_state" "eks" {
+      backend = "remote"
+
+      config = {
+        organization = global.tfe_organization
+        workspaces = {
+          name = "aws-eks-${global.environment}"
+        }
+      }
+    }
+  }
+}
+
+
+# Generate '_terramate_generated_kubecost.tf' in each stack
+generate_hcl "_terramate_generated_kubecost.tf" {
+  content {
 
     provider "kubernetes" {
       host                   = data.terraform_remote_state.eks.outputs.cluster_endpoint

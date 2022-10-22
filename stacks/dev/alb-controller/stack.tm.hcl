@@ -1,5 +1,6 @@
 stack {
-  name = "dev-oregon-alb-controller"
+  name = "AWS Load Balancer Controller Stack"
+  id   = "aws-alb-dev"
 
   after = [
     "/stacks/dev/eks",

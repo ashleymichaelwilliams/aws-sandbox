@@ -4,10 +4,10 @@
 
 → **`Click the image to view this run in the Pluralith Dashboard`**
 
-[![Pluralith Diagram](https://firebasestorage.googleapis.com/v0/b/pluralith.appspot.com/o/project_313706825%2Frun_8506246%2Frun_8506246_1666249260455.png?alt=media&token=f59a9431-25b9-4d3a-919d-2b08c645eff2)](https://app.pluralith.com/#/orgs/278078477/projects/313706825/runs/8506246/)
+[![Pluralith Diagram](https://firebasestorage.googleapis.com/v0/b/pluralith.appspot.com/o/project_313706825%2Frun_8183849%2Frun_8183849_1666326547730.png?alt=media&token=89b71c52-e9e0-4373-bf6a-26123ee6da58)](https://app.pluralith.com/#/orgs/278078477/projects/313706825/runs/8183849/)
 
 ## Changes
 
 | **Created** | **Updated** | **Destroyed** | **Recreated** | **Drifted** | **Unchanged** |
 |-------------|-------------|-------------|---------------|---------------|---------------|
-| 🟢 **`+ 0`** | 🟠 **`~ 0`** | 🔴 **`- 0`**   | 🔵 **`@ 0`**   | 🟣 **`# 0`**   | ⚪ **`# 12`**   |
+| 🟢 **`+ 0`** | 🟠 **`~ 0`** | 🔴 **`- 0`**   | 🔵 **`@ 0`**   | 🟣 **`# 0`**   | ⚪ **`# 3`**   |

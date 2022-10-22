@@ -1,8 +1,6 @@
 # Generate '_terramate_generated_vpc.tf' in each stack
-
 generate_hcl "_terramate_generated_vpc.tf" {
   content {
-
 
     module "vpc" {
       source  = "terraform-aws-modules/vpc/aws"

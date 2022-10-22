@@ -5,7 +5,7 @@ FROM $OS:$VERSION
 
 
 # Set Env Variables
-ENV TF_VERSION='0.14.8'
+ENV TF_VERSION='1.2.9'
 ENV TG_VERSION='0.29.10'
 
 
