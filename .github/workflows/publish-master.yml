@@ -1,4 +1,4 @@
-name: Master_Publish_Terraform_Module
+name: Publish Release
 
 on:
    push:
