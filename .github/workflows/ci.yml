@@ -30,10 +30,11 @@ jobs:
         run: go install github.com/mineiros-io/terramate/cmd/terramate@v0.1.35
 
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: 0.14.8
+          terraform_version: "~1.2.9"
           terraform_wrapper: false
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Check Terraform Formatting
         run: terraform fmt -recursive -check -no-color

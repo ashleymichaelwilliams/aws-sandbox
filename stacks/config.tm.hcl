@@ -1,7 +1,7 @@
 globals {
   local_tfstate_path = "terraform.tfstate"
 
-  terraform_version = "~> 0.14.8"
+  terraform_version = "~> 1.2.9"
 
   terraform_aws_provider_region   = global.region
   terraform_aws_provider_version  = "~> 4.34"
