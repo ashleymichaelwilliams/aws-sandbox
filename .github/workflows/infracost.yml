@@ -1,0 +1,55 @@
+name: InfraCost
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  infracost:
+    name: Run Infracost
+    runs-on: "ubuntu-20.04"
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      TF_ROOT: "stacks"
+      INFRACOST_TERRAFORM_CLOUD_TOKEN: ${{ secrets.TF_API_TOKEN }}
+      INFRACOST_ENABLE_DASHBOARD: true
+
+    steps:
+
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v2
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+
+      - name: Checkout base branch
+        uses: actions/checkout@v3
+        with:
+          ref: '${{ github.event.pull_request.base.ref }}'
+
+      ### Estimates the DEV Stack
+      - name: Generate Infracost cost estimate baseline
+        run: |
+          infracost breakdown --path=${TF_ROOT}/dev \
+                              --format=json \
+                              --out-file=/tmp/infracost-base.json
+
+      - name: Checkout PR branch
+        uses: actions/checkout@v3
+
+      - name: Generate Infracost diff (DEV)
+        run: |
+          infracost diff --path=${TF_ROOT}/dev \
+                          --format=json \
+                          --compare-to=/tmp/infracost-base.json \
+                          --out-file=/tmp/infracost.json
+
+      - name: Post Infracost comment
+        run: |
+            infracost comment github --path=/tmp/infracost.json \
+                                     --repo=$GITHUB_REPOSITORY \
+                                     --github-token=${{github.token}} \
+                                     --pull-request=${{github.event.pull_request.number}} \
+                                     --behavior=update
