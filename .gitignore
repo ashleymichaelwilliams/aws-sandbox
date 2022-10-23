@@ -33,3 +33,6 @@ override.tf.json
 **/graph.svg
 **/.pluralith/
 **/pluralith.yml
+
+
+**/.infracost/*

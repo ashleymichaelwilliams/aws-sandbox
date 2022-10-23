@@ -10,6 +10,12 @@ generate_hcl "_terramate_generated_data-source.tf" {
       config = {
         path = "../eks/${global.local_tfstate_path}"
       }
+
+      defaults = {
+        cluster_id                         = "ex-eks"
+        cluster_endpoint                   = "https://ABCDEFGHIJKLMNOPQRSTUVWXYZ.gr7.us-west-2.eks.amazonaws.com"
+        cluster_certificate_authority_data = "dGhpcyBpcyB0ZXN0IGRhdGEuLi4K"
+      }
     }
   }
 }
@@ -28,6 +34,12 @@ generate_hcl "_terramate_generated_data-source.tf" {
         workspaces = {
           name = "aws-eks-${global.environment}"
         }
+      }
+
+      defaults = {
+        cluster_id                         = "ex-eks"
+        cluster_endpoint                   = "https://ABCDEFGHIJKLMNOPQRSTUVWXYZ.gr7.us-west-2.eks.amazonaws.com"
+        cluster_certificate_authority_data = "dGhpcyBpcyB0ZXN0IGRhdGEuLi4K"
       }
     }
   }
