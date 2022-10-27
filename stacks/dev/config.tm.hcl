@@ -24,4 +24,5 @@ globals {
   # Backend Configuration 
   isLocal = false # true==Local Backend or false==Terrform Cloud Backend  
 
+  external_snapshotter_version = "6.1.0"
 }

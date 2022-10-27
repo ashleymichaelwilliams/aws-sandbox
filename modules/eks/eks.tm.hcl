@@ -174,14 +174,14 @@ generate_hcl "_terramate_generated_eks.tf" {
 
         # Spot Instance Managed Node Group managed by Karpenter
         spot = {
-          name            = "spot-eks-mng"
+          name            = global.mng_config.spot.name
           use_name_prefix = true
 
           subnet_ids = data.terraform_remote_state.vpc.outputs.private_subnets
 
-          min_size     = 2
-          max_size     = 5
-          desired_size = 2
+          min_size     = global.mng_config.spot.min_size
+          max_size     = global.mng_config.spot.max_size
+          desired_size = global.mng_config.spot.desired_size
 
           ami_id                     = data.aws_ami.eks_default.image_id
           enable_bootstrap_user_data = true
@@ -196,9 +196,9 @@ generate_hcl "_terramate_generated_eks.tf" {
           echo "you are free little kubelet!"
           EOT
 
-          capacity_type        = "SPOT"
+          capacity_type        = global.mng_config.spot.capacity_type
           force_update_version = true
-          instance_types       = ["t3.medium"]
+          instance_types       = global.mng_config.spot.instance_types
           labels = {
             GithubRepo = "terraform-aws-eks"
             GithubOrg  = "terraform-aws-modules"

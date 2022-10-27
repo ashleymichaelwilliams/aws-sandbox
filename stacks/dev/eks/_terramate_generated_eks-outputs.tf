@@ -125,3 +125,11 @@ output "aws_auth_configmap_yaml" {
   description = "Formatted yaml output for base aws-auth configmap containing roles used in cluster node groups/fargate profiles"
   value       = module.eks.aws_auth_configmap_yaml
 }
+output "aws_kms_ebs_key_arn" {
+  description = "The Amazon Resource Name (ARN) of the EBS Volume key"
+  value       = aws_kms_key.ebs.arn
+}
+output "aws_kms_ebs_key_id" {
+  description = "The globally unique identifier for the EBS Volume key"
+  value       = aws_kms_key.ebs.key_id
+}

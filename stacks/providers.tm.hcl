@@ -19,6 +19,10 @@ generate_hcl "_terramate_generated_providers.tf" {
           source  = "hashicorp/helm"
           version = global.terraform_helm_provider_version
         }
+        kubectl = {
+          source  = "gavinbunney/kubectl"
+          version = global.terraform_kubectl_provider_version
+        }
       }
     }
 

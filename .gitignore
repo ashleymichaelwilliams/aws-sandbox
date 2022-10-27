@@ -36,3 +36,4 @@ override.tf.json
 
 
 **/.infracost/*
+**/infracost-usage.yml

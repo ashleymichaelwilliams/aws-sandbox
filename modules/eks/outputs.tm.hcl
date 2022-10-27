@@ -210,5 +210,15 @@ generate_hcl "_terramate_generated_eks-outputs.tf" {
       value       = module.eks.aws_auth_configmap_yaml
     }
 
+    output "aws_kms_ebs_key_arn" {
+      description = "The Amazon Resource Name (ARN) of the EBS Volume key"
+      value       = aws_kms_key.ebs.arn
+    }
+
+    output "aws_kms_ebs_key_id" {
+      description = "The globally unique identifier for the EBS Volume key"
+      value       = aws_kms_key.ebs.key_id
+    }
+
   }
 }
