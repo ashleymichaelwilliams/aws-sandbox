@@ -4,7 +4,7 @@
 
 → **`Click the image to view this run in the Pluralith Dashboard`**
 
-[![Pluralith Diagram](https://firebasestorage.googleapis.com/v0/b/pluralith.appspot.com/o/project_313706825%2Frun_5822967%2Frun_5822967_1666326439403.png?alt=media&token=378cde9e-0864-43db-ba2c-fe37d7d20460)](https://app.pluralith.com/#/orgs/278078477/projects/313706825/runs/5822967/)
+[![Pluralith Diagram](https://firebasestorage.googleapis.com/v0/b/pluralith.appspot.com/o/project_313706825%2Frun_0173120%2Frun_0173120_1666587815885.png?alt=media&token=5d9be1ee-3c5a-41d3-b688-234c9c74d2bc)](https://app.pluralith.com/#/orgs/278078477/projects/313706825/runs/0173120/)
 
 ## Changes
 

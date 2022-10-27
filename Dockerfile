@@ -12,12 +12,14 @@ ENV TG_VERSION='0.29.10'
 # Install Base Components
 RUN apt-get -y update && \
      apt-get -y upgrade -y && \
-     apt-get -y install wget curl git python3-pip build-essential
+     apt-get -y install wget curl git python3-pip build-essential nodejs npm
 
 
 # Install awscli via Python Package Manager
 RUN pip install awscli --ignore-installed six
 
+# Install Pluralith
+RUN curl https://raw.githubusercontent.com/Pluralith/pluralith-cli/dev/scripts/install.sh | sh
 
 # Install & Configure Brew
 RUN git clone https://github.com/Homebrew/brew ~/.linuxbrew/Homebrew \
@@ -32,6 +34,7 @@ RUN git clone https://github.com/Homebrew/brew ~/.linuxbrew/Homebrew \
         terramate \
         kubectl \
         helm \
+        infracost \
         FairwindsOps/tap/pluto && \
         tfenv install $TF_VERSION && tfenv use $TF_VERSION && \
         tgenv install $TG_VERSION && tgenv use $TG_VERSION

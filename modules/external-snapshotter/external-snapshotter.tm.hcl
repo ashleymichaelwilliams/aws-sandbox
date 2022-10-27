@@ -97,7 +97,7 @@ generate_hcl "_terramate_generated_external-snapshotter.tf" {
     resource "kubectl_manifest" "csi-snapshotter" {
       for_each  = data.kubectl_file_documents.csi-snapshotter.manifests
       yaml_body = each.value
-      
+
       depends_on = [
         kubectl_manifest.crd
       ]
@@ -112,7 +112,7 @@ generate_hcl "_terramate_generated_external-snapshotter.tf" {
     resource "kubectl_manifest" "snapshot-controller" {
       for_each  = data.kubectl_file_documents.snapshot-controller.manifests
       yaml_body = each.value
-      
+
       depends_on = [
         kubectl_manifest.crd
       ]
@@ -131,7 +131,7 @@ generate_hcl "_terramate_generated_external-snapshotter.tf" {
     resource "kubectl_manifest" "gp3-sc" {
       for_each  = data.kubectl_file_documents.gp3-sc.manifests
       yaml_body = each.value
-      
+
       depends_on = [
         kubectl_manifest.crd
       ]
@@ -141,17 +141,17 @@ generate_hcl "_terramate_generated_external-snapshotter.tf" {
     resource "kubernetes_annotations" "gp2" {
       api_version = "storage.k8s.io/v1"
       kind        = "StorageClass"
-      
+
       metadata {
         name = "gp2"
       }
-      
+
       annotations = {
         "storageclass.kubernetes.io/is-default-class" = ""
       }
-      
+
       force = true
-        
+
       depends_on = [
         kubectl_manifest.crd
       ]
@@ -166,7 +166,7 @@ generate_hcl "_terramate_generated_external-snapshotter.tf" {
     resource "kubectl_manifest" "csi-aws-vsc" {
       for_each  = data.kubectl_file_documents.csi-aws-vsc.manifests
       yaml_body = each.value
-      
+
       depends_on = [
         kubectl_manifest.crd
       ]
@@ -181,7 +181,7 @@ generate_hcl "_terramate_generated_external-snapshotter.tf" {
     resource "kubectl_manifest" "ebs-csi-aws" {
       for_each  = data.kubectl_file_documents.ebs-csi-aws.manifests
       yaml_body = each.value
-      
+
       depends_on = [
         kubectl_manifest.crd
       ]
