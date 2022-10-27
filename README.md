@@ -15,7 +15,7 @@ This repository serves as an example project where you can experiment with diffe
 
   - [Project Summary](#project-summary)
     - [Diagram of what we are building](#diagram-of-what-we-are-building)
-    - [Summarized list of Technologies/Tools](#summarized-list-of-technologiestools)
+    - [Technologies/Tools](#summarized-list-of-technologiestools)
   - [Project Walkthrough](#project-walkthrough)
     - [Choice of Provisioning Methods](#choice-of-provisioning-methods)
     - [Common Configurations](#common-configurations-necessary-for-eihter-method)
@@ -36,7 +36,7 @@ This repository serves as an example project where you can experiment with diffe
 <br><br>
 
 
-### **Summarized list of Technologies/Tools:**
+### **Technologies/Tools:**
 <br>
 
 &nbsp;&nbsp;&nbsp; CI Pipeline Related:
@@ -44,7 +44,7 @@ This repository serves as an example project where you can experiment with diffe
 * AquaSec TFsec
 * Infracost
 
-&nbsp;&nbsp;&nbsp; Infra-as-Code and Orchrestation Related:
+&nbsp;&nbsp;&nbsp; Infra-as-Code and Orchestration Related:
 * Terraform
 * Terraform Cloud
 * Terramate
@@ -80,11 +80,11 @@ This repository serves as an example project where you can experiment with diffe
 <br>
 
 &nbsp;&nbsp;&nbsp; Some of the documented components/services have yet to be added.
-  * Therefore they will be missing until they are added to the project.
+  * Therefore, they will be missing until they are added to the project.
 
 <br>
 
-&nbsp;&nbsp;&nbsp; When provisiong the "dev" stack (`stacks/dev`) by default it's set to "remote" (Terraform Cloud) for backend state storage.
+&nbsp;&nbsp;&nbsp; When provisioning the "dev" stack (`stacks/dev`) by default it's set to "remote" (Terraform Cloud) for backend state storage.
   * You will need to modify the `tfe_organization` global variable in the `stakcs/config.tm.hcl` file with your Otganization ID.
   * You can also easily opt to use the "local" backend storage by setting the global variable `isLocal` to `true` in the `stacks/dev/config.tm.hcl` file.
 
@@ -92,11 +92,11 @@ This repository serves as an example project where you can experiment with diffe
 
 &nbsp;&nbsp;&nbsp; We might recommend using a sandbox or trial account (ie. A Cloud Guru Playground) account when initially using the project.
   * Protects users from accidently causing any risk/issues with existing environment configurations.
-  * Can also prevent any naming colisions during provisioning with existing resources.
+  * Can also prevent any naming collisions during provisioning with existing resources.
 
 <br>
 
-&nbsp;&nbsp;&nbsp; There are a lot of opportunies for optimizing the configuration management for this project. (This was intentional!)
+&nbsp;&nbsp;&nbsp; There are a lot of opportunities for optimizing the configuration management for this project. (This was intentional!)
   * This project was intended for testing purposes of sample Infra Code, which is used to illustrate how you might structure your project.
 
 <br>
@@ -113,7 +113,7 @@ This repository serves as an example project where you can experiment with diffe
 ### ***Choice of Provisioning Methods***
 <ol>
   <li> Method 1: Running from your local system (tested on OSX 10.15 Catalina)
-  <li> Method 2: Running within a custom Docker image: Easier 
+  <li> Method 2: Running within a custom Docker image 
 </ol>
 
 <br>
@@ -136,7 +136,7 @@ This repository serves as an example project where you can experiment with diffe
 <br><br><br>
 
 
-### Common Configurations (necessary for eihter method)
+### Common Configurations (necessary for either method)
 <br>
 
 #### Set your AWS variables on your local system
@@ -329,7 +329,7 @@ EOF
 export INFRACOST_API_KEY="<INFRACOST_API_KEY_HERE>"
 export INFRACOST_ENABLE_DASHBOARD=true
 
-# Generated Costs Uages Report
+# Generated Cost Usage Report
 terramate run -- infracost breakdown --path . --usage-file ./infracost-usage.yml --sync-usage-file
 ```
 
