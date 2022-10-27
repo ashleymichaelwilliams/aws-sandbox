@@ -11,14 +11,14 @@ This repository serves as an example project where you can experiment with diffe
 
 <br>
 
-# Table of contents
+### Table of contents
 
   - [Project Summary](#project-summary)
     - [Diagram of what we are building](#diagram-of-what-we-are-building)
-    - [Technologies/Tools](#summarized-list-of-technologiestools)
+    - [Technologies/Tools](#technologiestools)
   - [Project Walkthrough](#project-walkthrough)
     - [Choice of Provisioning Methods](#choice-of-provisioning-methods)
-    - [Common Configurations](#common-configurations-necessary-for-eihter-method)
+    - [Common Configurations](#common-configurations-necessary-for-either-method)
     - [Provisioning Method 1: Running from your local system](#provisioning-method-1-running-from-your-local-system)
     - [Provisioning Method 2: Running within a built Docker container](#provisioning-method-2-running-within-a-built-docker-container)
     - [Using Fairwinds Pluto](#using-fairwinds-pluto)
