@@ -2,7 +2,7 @@
 
 
 ![CI Status](https://github.com/ashleymichaelwilliams/aws-sandbox/actions/workflows/ci.yml/badge.svg) ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/ashleymichaelwilliams/aws-sandbox) ![GitHub language count](https://img.shields.io/github/languages/count/ashleymichaelwilliams/aws-sandbox) ![GitHub top language](https://img.shields.io/github/languages/top/ashleymichaelwilliams/aws-sandbox)<br>
-![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white) ![AquaSec](https://img.shields.io/badge/aqua-%231904DA.svg?style=for-the-badge&logo=aqua&logoColor=#0018A8) ![Infracost](https://i.ibb.co/chDDfgF/infracost3.jpg) ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white) ![Shell Script](https://img.shields.io/badge/shell_script-%23121011.svg?style=for-the-badge&logo=gnu-bash&logoColor=white) ![Terraform](https://img.shields.io/badge/terraform-%235835CC.svg?style=for-the-badge&logo=terraform&logoColor=white) ![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white) 
+![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white) ![AquaSec](https://img.shields.io/badge/aqua-%231904DA.svg?style=for-the-badge&logo=aqua&logoColor=#0018A8) ![Infracost](https://i.ibb.co/chDDfgF/infracost3.jpg) ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white) ![Shell Script](https://img.shields.io/badge/shell_script-%23121011.svg?style=for-the-badge&logo=gnu-bash&logoColor=white) ![Terraform](https://img.shields.io/badge/terraform-%235835CC.svg?style=for-the-badge&logo=terraform&logoColor=white)
 
 
 
@@ -19,7 +19,7 @@ This repository serves as an example project where you can experiment with diffe
 
 
 ### Project Note:
-#### Considering there is lots of opportunies for cleanup and general optimizing of the config mgmt aspects for this project, please understand this project was intended for testing purposes of sample Infra Code which can be used to illustrate more how things go together then the module development. 
+Considering there is lots of opportunies for cleanup and general optimizing of the config mgmt aspects for this project, please understand this project was intended for testing purposes of sample Infra Code which can be used to illustrate more how things go together then the module development. 
 
 <br><br>
 
