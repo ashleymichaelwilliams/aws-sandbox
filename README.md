@@ -13,19 +13,19 @@ This repository serves as an example project where you can experiment with diffe
 
 # Table of contents
 
-  - [Project Summary:](#project-summary)
+  - [Project Summary](#project-summary)
     - [Diagram of what we are building](#diagram-of-what-we-are-building)
-    - [Summarized list of Technologies/Tools:](#summarized-list-of-technologiestools)
-  - [Project Walkthrough:](#project-walkthrough)
+    - [Summarized list of Technologies/Tools](#summarized-list-of-technologiestools)
+  - [Project Walkthrough](#project-walkthrough)
     - [Choice of Provisioning Methods](#choice-of-provisioning-methods)
-    - [Common Configurations (necessary for eihter method)](#common-configurations-necessary-for-eihter-method)
+    - [Common Configurations](#common-configurations-necessary-for-eihter-method)
     - [Provisioning Method 1: Running from your local system](#provisioning-method-1-running-from-your-local-system)
     - [Provisioning Method 2: Running within a built Docker container](#provisioning-method-2-running-within-a-built-docker-container)
-    - [Using Fairwinds Pluto:](#using-fairwinds-pluto)
-    - [Karpenter Testing:](#karpenter-testing)
+    - [Using Fairwinds Pluto](#using-fairwinds-pluto)
+    - [Karpenter Testing](#karpenter-testing)
     - [Migrate GP2 EBS Volume to a GP3 Volume using Snapshots](#migrate-gp2-ebs-volume-to-a-gp3-volume-using-snapshots)
-    - [Running Infracost and Pluralith:](#running-infracost-and-pluralith)
-    - [Destroy Provisioned Infrastructure:](#destroy-provisioned-infrastructure)
+    - [Running Infracost and Pluralith](#running-infracost-and-pluralith)
+    - [Destroy Provisioned Infrastructure](#destroy-provisioned-infrastructure)
 
 <br><br>
 
