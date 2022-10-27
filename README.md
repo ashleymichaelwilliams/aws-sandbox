@@ -4,14 +4,31 @@
 ![CI Status](https://github.com/ashleymichaelwilliams/aws-sandbox/actions/workflows/ci.yml/badge.svg) ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/ashleymichaelwilliams/aws-sandbox) ![GitHub language count](https://img.shields.io/github/languages/count/ashleymichaelwilliams/aws-sandbox) ![GitHub top language](https://img.shields.io/github/languages/top/ashleymichaelwilliams/aws-sandbox)<br>
 ![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white) ![AquaSec](https://img.shields.io/badge/aqua-%231904DA.svg?style=for-the-badge&logo=aqua&logoColor=#0018A8) ![Infracost](https://i.ibb.co/chDDfgF/infracost3.jpg) ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white) ![Shell Script](https://img.shields.io/badge/shell_script-%23121011.svg?style=for-the-badge&logo=gnu-bash&logoColor=white) ![Terraform](https://img.shields.io/badge/terraform-%235835CC.svg?style=for-the-badge&logo=terraform&logoColor=white)
 
-
-
 <br>
 
 ## **Project Summary**:
 This repository serves as an example project where you can experiment with different "stacks" using Terramate following generally good design practices.
 
+<br>
+
+# Table of contents
+
+  - [Project Summary:](#project-summary)
+    - [Diagram of what we are building](#diagram-of-what-we-are-building)
+    - [Summarized list of Technologies/Tools:](#summarized-list-of-technologiestools)
+  - [Project Walkthrough:](#project-walkthrough)
+    - [Choice of Provisioning Methods](#choice-of-provisioning-methods)
+    - [Common Configurations (necessary for eihter method)](#common-configurations-necessary-for-eihter-method)
+    - [Provisioning Method 1: Running from your local system](#provisioning-method-1-running-from-your-local-system)
+    - [Provisioning Method 2: Running within a built Docker container](#provisioning-method-2-running-within-a-built-docker-container)
+    - [Using Fairwinds Pluto:](#using-fairwinds-pluto)
+    - [Karpenter Testing:](#karpenter-testing)
+    - [Migrate GP2 EBS Volume to a GP3 Volume using Snapshots](#migrate-gp2-ebs-volume-to-a-gp3-volume-using-snapshots)
+    - [Running Infracost and Pluralith:](#running-infracost-and-pluralith)
+    - [Destroy Provisioned Infrastructure:](#destroy-provisioned-infrastructure)
+
 <br><br>
+
 
 ### Diagram of what we are building
 ![Diagram](docs/AWS-Lab-HLD.jpg)
@@ -57,7 +74,7 @@ This repository serves as an example project where you can experiment with diffe
 * KMS - Key Management Service
 
 
-<br><br><br>
+<br><br>
 
 #### **Project Notes:**
 <br>
@@ -85,12 +102,20 @@ This repository serves as an example project where you can experiment with diffe
 <br>
 
 &nbsp;&nbsp;&nbsp; Those running an ARM CPU architecture (ie. Apple's M1) might find it challenging when trying to use the project.
-  * This is due to lack of current support of compiled binaries for ARM and lack of native emulation (Rosetta 2 in OSX (until OSX-13 Ventura).
+  * This is due to lack of current support of compiled binaries for ARM and lack of native emulation (Rosetta 2 expected as part of OSX 13 Ventura).
 
 <br><br><br>
 
 
 ## **Project Walkthrough**:
+<br>
+
+### ***Choice of Provisioning Methods***
+<ol>
+  <li> Method 1: Running from your local system (tested on OSX 10.15 Catalina)
+  <li> Method 2: Running within a custom Docker image: Easier 
+</ol>
+
 <br>
 
 ### Binary Prerequisites:
@@ -101,6 +126,7 @@ This repository serves as an example project where you can experiment with diffe
 * terramate (v0.1.35+)
 * terraform (v1.2.9+)
 * kubectl (v1.19+)
+* jq (any version)
 
 <br>
 
@@ -109,14 +135,6 @@ This repository serves as an example project where you can experiment with diffe
 
 <br><br><br>
 
-
-### ***Choice of Provisioning Methods***
-<ol>
-  <li> Method 1: Running from your local system (tested on OSX 10.15 Catalina)
-  <li> Method 2: Running within a custom Docker image: Easier 
-</ol>
-
-<br><br>
 
 ### Common Configurations (necessary for eihter method)
 <br>
@@ -127,6 +145,8 @@ export AWS_DEFAULT_REGION='us-west-2'
 export AWS_ACCESS_KEY_ID='<PASTE_YOUR_ACCESS_KEY_ID_HERE>'
 export AWS_SECRET_ACCESS_KEY='<PASTE_YOUR_SECRET_ACCESS_KEY_HERE>'
 ```
+
+
 <br><br><br>
 
 ### Provisioning Method 1: Running from your local system
@@ -138,17 +158,17 @@ export AWS_SECRET_ACCESS_KEY='<PASTE_YOUR_SECRET_ACCESS_KEY_HERE>'
 terramate generate
 git add -A
 
-
 # Terraform Provisioning
 terramate run -- terraform init
 terramate run -- terraform apply
 ```
+
 <br>
 
 
 #### EKS Cluster Configuration:
 ```
-# Add EKS Cluster Configure/Creds
+# Adds the EKS Cluster Configure/Creds (Change cluster name if necessary!)
 aws eks update-kubeconfig --name ex-eks
 
 # Edit Kube Config to Connect to cluster (Add to the bottom of the "Users" section of the config...) 
@@ -160,8 +180,9 @@ cat <<EOT >> ~/.kube/config
         value: ${AWS_SECRET_ACCESS_KEY}
 EOT
 ```
-<br><br><br>
 
+
+<br><br><br>
 
 ### Provisioning Method 2: Running within a built Docker container
 <br>
@@ -183,13 +204,12 @@ make exec
 # Source Script Functions
 source functions.sh
 
-# Change Directory into "Local" Stack
+# Example: Changing Directory into the "Local" Stack
 cd /project/stacks/local
 
 # Terramate Commands (Generate/Validate/Apply)
 tm-apply
 ```
-
 
 #### Configures Kubernetes CLI (Config/Credentials)
 ```
@@ -199,7 +219,10 @@ eks-creds
 
 <br><br><br>
 
-### Check for Deprecated/Removal of Resources in using Fairwinds Pluto
+### Using Fairwinds Pluto:
+<br>
+
+#### Check for Deprecated/Removal of Resources
 ```
 pluto detect-helm -o wide -t k8s=v1.25.0
 pluto detect-api-resources -o wide -t k8s=v1.25.0
@@ -209,6 +232,7 @@ pluto detect-api-resources -o wide -t k8s=v1.25.0
 <br><br><br>
 
 ### Karpenter Testing:
+<br>
 
 #### Scale the Deployment causing Karpenter to Add/Scale-Up Nodes
 ```
@@ -223,21 +247,100 @@ kubectl scale deployment inflate --replicas 0
 
 <br><br><br>
 
-### Karpenter Testing:
+### Migrate GP2 EBS Volume to a GP3 Volume using Snapshots
+<br>
 
-#### Run Infracost and Pluralith
+#### Creates an EC2 Snapshot from existing Volume (example using KubeCost)
 ```
-# InfraCost (Requires an Account)
+PVC_ID=$(kubectl -n kubecost get pv -o json | jq -r '.items[1].metadata.name')
+VOLUME_ID=$(kubectl get pv $PVC_ID -o jsonpath='{.spec.awsElasticBlockStore.volumeID}' | rev | cut -d'/' -f 1 | rev)
+SNAPSHOT_RESPONSE=$(aws ec2 create-snapshot --volume-id $VOLUME_ID --tag-specifications 'ResourceType=snapshot,Tags=[{Key="ec2:ResourceTag/ebs.csi.aws.com/cluster",Value="true"}]')
+```
+
+#### Wait for Snapshot to Complete (Run this until it reports Completed)
+```
+aws ec2 describe-snapshots --snapshot-ids $(echo "${SNAPSHOT_RESPONSE}" | jq -r '.SnapshotId')
+```
+
+#### Create Volume Snapshot CRDs to Provision a Volume from Snapshot
+```
+cat <<EOF | kubectl apply -f -
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotContent
+metadata:
+  name: imported-aws-snapshot-content    # <-- Make sure to use a unique name here
+spec:
+  volumeSnapshotRef:
+    kind: VolumeSnapshot
+    name: imported-aws-snapshot
+    namespace: kubecost
+  source:
+    snapshotHandle: $(echo "${SNAPSHOT_RESPONSE}" | jq -r '.SnapshotId')
+  driver: ebs.csi.aws.com
+  deletionPolicy: Delete
+  volumeSnapshotClassName: ebs-csi-aws
+EOF
+
+
+cat <<EOF | kubectl apply -f -
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: imported-aws-snapshot
+  namespace: kubecost
+spec:
+  volumeSnapshotClassName: ebs-csi-aws
+  source:
+    volumeSnapshotContentName: imported-aws-snapshot-content   # <-- Here is the reference to the Snapshot by name
+EOF
+```
+
+#### Creates the Peristent Volune Claim with the newly created VolumeSnapshot
+```
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: imported-aws-snapshot-pvc
+  namespace: kubecost
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: gp3
+  resources:
+    requests:
+      storage: 32Gi
+  dataSource:
+    name: imported-aws-snapshot
+    kind: VolumeSnapshot
+    apiGroup: snapshot.storage.k8s.io
+EOF
+```
+
+
+<br><br><br>
+
+### Running Infracost and Pluralith:
+<br>
+
+#### Run Infracost for Cost Estimation (Requires an Account)
+```
+# Set Pluralith Credentials
 export INFRACOST_API_KEY="<INFRACOST_API_KEY_HERE>"
 export INFRACOST_ENABLE_DASHBOARD=true
-terramate run -- infracost breakdown --path . --usage-file ./infracost-usage.yml --sync-usage-file
 
-# Set Pluralith Credentials (Requires an Account)
+# Generated Costs Uages Report
+terramate run -- infracost breakdown --path . --usage-file ./infracost-usage.yml --sync-usage-file
+```
+
+#### Run Pluralith for Generated Diagrams (Requires an Account)
+```
+# Set Pluralith Credentials
 export PATH=$PATH:/root/.linuxbrew/Cellar/infracost/0.10.13/bin
 export PLURALITH_API_KEY="<PLURALITH_API_KEY_HERE>"
 export PLURALITH_PROJECT_ID="<PLURALITH_PROJECT_ID_HERE>"
 
-# Run Pluralith Plan
+# Run Pluralith Init & Plan
 terramate run -- pluralith init --api-key $PLURALITH_API_KEY --project-id $PLURALITH_PROJECT_ID
 terramate run -- pluralith run plan --title "Stack" --show-changes=false --show-costs=true ----cost-usage-file=infracost-usage.yml
 ```
@@ -246,6 +349,8 @@ terramate run -- pluralith run plan --title "Stack" --show-changes=false --show-
 <br><br><br>
 
 ### Destroy Provisioned Infrastructure:
+<br>
+
 ```
 terramate run --reverse -- terraform destroy
 ```
