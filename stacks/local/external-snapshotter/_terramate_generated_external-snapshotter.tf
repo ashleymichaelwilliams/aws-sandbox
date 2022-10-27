@@ -30,14 +30,14 @@ provider "kubectl" {
   }
 }
 data "kubectl_file_documents" "crd" {
-  content = file("manifests/crd.yaml")
+  content = file("crd.yaml")
 }
 resource "kubectl_manifest" "crd" {
   for_each  = data.kubectl_file_documents.crd.manifests
   yaml_body = each.value
 }
 data "kubectl_file_documents" "csi-snapshotter" {
-  content = file("manifests/csi-snapshotter.yaml")
+  content = file("csi-snapshotter.yaml")
 }
 resource "kubectl_manifest" "csi-snapshotter" {
   depends_on = [
@@ -47,7 +47,7 @@ resource "kubectl_manifest" "csi-snapshotter" {
   yaml_body = each.value
 }
 data "kubectl_file_documents" "snapshot-controller" {
-  content = file("manifests/snapshot-controller.yaml")
+  content = file("snapshot-controller.yaml")
 }
 resource "kubectl_manifest" "snapshot-controller" {
   depends_on = [
@@ -57,7 +57,7 @@ resource "kubectl_manifest" "snapshot-controller" {
   yaml_body = each.value
 }
 data "kubectl_file_documents" "gp3-sc" {
-  content = templatefile("manifests/gp3-sc.yaml.tftpl", {
+  content = templatefile("gp3-sc.yaml.tftpl", {
     kms_key_id = [
       "${data.terraform_remote_state.eks.outputs.aws_kms_ebs_key_arn}",
     ]
@@ -85,7 +85,7 @@ resource "kubernetes_annotations" "gp2" {
   }
 }
 data "kubectl_file_documents" "csi-aws-vsc" {
-  content = file("manifests/csi-aws-vsc.yaml")
+  content = file("csi-aws-vsc.yaml")
 }
 resource "kubectl_manifest" "csi-aws-vsc" {
   depends_on = [
@@ -95,7 +95,7 @@ resource "kubectl_manifest" "csi-aws-vsc" {
   yaml_body = each.value
 }
 data "kubectl_file_documents" "ebs-csi-aws" {
-  content = file("manifests/ebs-csi-aws.yaml")
+  content = file("ebs-csi-aws.yaml")
 }
 resource "kubectl_manifest" "ebs-csi-aws" {
   depends_on = [

@@ -80,7 +80,7 @@ generate_hcl "_terramate_generated_external-snapshotter.tf" {
 
     # 1-Install crds
     data "kubectl_file_documents" "crd" {
-      content = file("manifests/crd.yaml")
+      content = file("crd.yaml")
     }
 
     resource "kubectl_manifest" "crd" {
@@ -91,7 +91,7 @@ generate_hcl "_terramate_generated_external-snapshotter.tf" {
 
     # 2-Install csi-snapshotter
     data "kubectl_file_documents" "csi-snapshotter" {
-      content = file("manifests/csi-snapshotter.yaml")
+      content = file("csi-snapshotter.yaml")
     }
 
     resource "kubectl_manifest" "csi-snapshotter" {
@@ -106,7 +106,7 @@ generate_hcl "_terramate_generated_external-snapshotter.tf" {
 
     # 3-Install snapshot-controller
     data "kubectl_file_documents" "snapshot-controller" {
-      content = file("manifests/snapshot-controller.yaml")
+      content = file("snapshot-controller.yaml")
     }
 
     resource "kubectl_manifest" "snapshot-controller" {
@@ -121,7 +121,7 @@ generate_hcl "_terramate_generated_external-snapshotter.tf" {
 
     # 4-Configure NEW gp3 Storage Class
     data "kubectl_file_documents" "gp3-sc" {
-      content = templatefile("manifests/gp3-sc.yaml.tftpl", {
+      content = templatefile("gp3-sc.yaml.tftpl", {
         kms_key_id = [
           "${data.terraform_remote_state.eks.outputs.aws_kms_ebs_key_arn}"
         ]
@@ -160,7 +160,7 @@ generate_hcl "_terramate_generated_external-snapshotter.tf" {
 
     # 6-Configure csi-aws-vsc VolumeSnapshotClass
     data "kubectl_file_documents" "csi-aws-vsc" {
-      content = file("manifests/csi-aws-vsc.yaml")
+      content = file("csi-aws-vsc.yaml")
     }
 
     resource "kubectl_manifest" "csi-aws-vsc" {
@@ -175,7 +175,7 @@ generate_hcl "_terramate_generated_external-snapshotter.tf" {
 
     # 7-Configure ebs-csi-aws VolumeSnapshotClass
     data "kubectl_file_documents" "ebs-csi-aws" {
-      content = file("manifests/ebs-csi-aws.yaml")
+      content = file("ebs-csi-aws.yaml")
     }
 
     resource "kubectl_manifest" "ebs-csi-aws" {
@@ -191,32 +191,32 @@ generate_hcl "_terramate_generated_external-snapshotter.tf" {
 }
 
 
-# Generate 'manifests/v${global.external_snapshotter_version}/crd.yaml' in each stack
-generate_file "manifests/crd.yaml" {
+# Generate 'crd.yaml' in each stack
+generate_file "crd.yaml" {
   content = tm_file("${terramate.root.path.fs.absolute}/modules/external-snapshotter/manifests/v${global.external_snapshotter_version}/crd.yaml")
 }
 
-# Generate 'manifests/v${global.external_snapshotter_version}/csi-snapshotter.yaml' in each stack
-generate_file "manifests/csi-snapshotter.yaml" {
+# Generate 'csi-snapshotter.yaml' in each stack
+generate_file "csi-snapshotter.yaml" {
   content = tm_file("${terramate.root.path.fs.absolute}/modules/external-snapshotter/manifests/v${global.external_snapshotter_version}/csi-snapshotter.yaml")
 }
 
-# Generate 'manifests/v${global.external_snapshotter_version}/snapshot-controller.yaml' in each stack
-generate_file "manifests/snapshot-controller.yaml" {
+# Generate 'snapshot-controller.yaml' in each stack
+generate_file "snapshot-controller.yaml" {
   content = tm_file("${terramate.root.path.fs.absolute}/modules/external-snapshotter/manifests/v${global.external_snapshotter_version}/snapshot-controller.yaml")
 }
 
-# Generate 'manifests/gp3-sc.yaml' in each stack
-generate_file "manifests/gp3-sc.yaml.tftpl" {
+# Generate 'gp3-sc.yaml' in each stack
+generate_file "gp3-sc.yaml.tftpl" {
   content = tm_file("${terramate.root.path.fs.absolute}/modules/external-snapshotter/manifests/gp3-sc.yaml.tftpl")
 }
 
-# Generate 'manifests/csi-aws-vsc.yaml' in each stack
-generate_file "manifests/csi-aws-vsc.yaml" {
+# Generate 'csi-aws-vsc.yaml' in each stack
+generate_file "csi-aws-vsc.yaml" {
   content = tm_file("${terramate.root.path.fs.absolute}/modules/external-snapshotter/manifests/csi-aws-vsc.yaml")
 }
 
-# Generate 'manifests/ebs-csi-aws.yaml' in each stack
-generate_file "manifests/ebs-csi-aws.yaml" {
+# Generate 'ebs-csi-aws.yaml' in each stack
+generate_file "ebs-csi-aws.yaml" {
   content = tm_file("${terramate.root.path.fs.absolute}/modules/external-snapshotter/manifests/ebs-csi-aws.yaml")
 }
