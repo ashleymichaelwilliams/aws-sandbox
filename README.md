@@ -261,8 +261,19 @@ kubectl scale deployment inflate --replicas 0
 
 #### Creates an EC2 Snapshot from existing Volume (example using KubeCost)
 ```
+# Returns the PVC ID from the Persistent Volune
 PVC_ID=$(kubectl -n kubecost get pv -o json | jq -r '.items[1].metadata.name')
+
+# Note: If the following command doesn't return a value for VOLUME_ID it's likely the volume is already managed by the new
+#  EBS CSI, which is the new default gp3 StorageClass. If this occurs please use this "alternate" command to continue exercise.
+
+# Use this for gp2 volume types
 VOLUME_ID=$(kubectl get pv $PVC_ID -o jsonpath='{.spec.awsElasticBlockStore.volumeID}' | rev | cut -d'/' -f 1 | rev)
+
+# Alternate command for use with gp3 volume types
+VOLUME_ID=$(kubectl get pv $PVC_ID -o jsonpath='{.spec.csi.volumeHandle}' | rev | cut -d'/' -f 1 | rev)
+
+# Creates the Snapshot from the Volume / Persistent Volume
 SNAPSHOT_RESPONSE=$(aws ec2 create-snapshot --volume-id $VOLUME_ID --tag-specifications 'ResourceType=snapshot,Tags=[{Key="ec2:ResourceTag/ebs.csi.aws.com/cluster",Value="true"}]')
 ```
 
@@ -326,6 +337,10 @@ spec:
 EOF
 ```
 
+#### Patch Deployment with new Volunme Claim
+```
+kubectl -n kubecost patch deployment kubecost-cost-analyzer --patch '{"spec": {"template": {"spec": {"volumes": [{"name": "persistent-configs", "persistentVolumeClaim": { "claimName": "imported-aws-snapshot-pvc"}}]}}}}'
+```
 
 <br><br><br>
 
