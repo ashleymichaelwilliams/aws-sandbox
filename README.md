@@ -15,17 +15,19 @@ This repository serves as an example project where you can experiment with diffe
 
   - [Project Summary](#project-summary)
     - [Diagram of what we are building](#diagram-of-what-we-are-building)
-    - [Technologies/Tools](#technologiestools)
+    - [Available Technologies/Tools](#available-technologiestools)
+    - [Project Notes](#project-notes)
   - [Project Walkthrough](#project-walkthrough)
     - [Choice of Provisioning Methods](#choice-of-provisioning-methods)
     - [Common Configurations](#common-configurations-necessary-for-either-method)
     - [Provisioning Method 1: Running from your local system](#provisioning-method-1-running-from-your-local-system)
     - [Provisioning Method 2: Running within a built Docker container](#provisioning-method-2-running-within-a-built-docker-container)
+  - [Project Exercises](#project-exercises)
     - [Using Fairwinds Pluto](#using-fairwinds-pluto)
     - [Karpenter Testing](#karpenter-testing)
     - [Migrate GP2 EBS Volume to a GP3 Volume using Snapshots](#migrate-gp2-ebs-volume-to-a-gp3-volume-using-snapshots)
     - [Running Infracost and Pluralith](#running-infracost-and-pluralith)
-    - [Destroy Provisioned Infrastructure](#destroy-provisioned-infrastructure)
+  - [Cleanup](#cleanup)
 
 <br><br>
 
@@ -36,7 +38,7 @@ This repository serves as an example project where you can experiment with diffe
 <br><br>
 
 
-### **Technologies/Tools:**
+### **Available Technologies/Tools:**
 <br>
 
 &nbsp;&nbsp;&nbsp; CI Pipeline Related:
@@ -60,6 +62,7 @@ This repository serves as an example project where you can experiment with diffe
 * Amazon EBS CSI Driver
 * External Snapshotter Controller
 * Prometheus Operator Stack
+* metrics-server
 * KubeCost
 
 &nbsp;&nbsp;&nbsp; AWS Services:
@@ -79,24 +82,24 @@ This repository serves as an example project where you can experiment with diffe
 #### **Project Notes:**
 <br>
 
-&nbsp;&nbsp;&nbsp; Some of the documented components/services have yet to be added.
+&nbsp;&nbsp;&nbsp; Some of the documented components/services in the diagram have yet to be added. (See [Available Technologies/Tools](#available-technologiestools) above)
   * Therefore, they will be missing until they are added to the project.
 
 <br>
 
 &nbsp;&nbsp;&nbsp; When provisioning the "dev" stack (`stacks/dev`) by default it's set to "remote" (Terraform Cloud) for backend state storage.
-  * You will need to modify the `tfe_organization` global variable in the `stakcs/config.tm.hcl` file with your Otganization ID.
-  * You can also easily opt to use the "local" backend storage by setting the global variable `isLocal` to `true` in the `stacks/dev/config.tm.hcl` file.
+  * You will need to modify the `tfe_organization` global variable in the `stakcs/config.tm.hcl` file with your Organization ID.
+  * You can also opt to use the "local" backend storage by setting the global variable `isLocal` to `true` in the `stacks/dev/config.tm.hcl` file.
 
 <br>
 
-&nbsp;&nbsp;&nbsp; We might recommend using a sandbox or trial account (ie. A Cloud Guru Playground) account when initially using the project.
-  * Protects users from accidently causing any risk/issues with existing environment configurations.
-  * Can also prevent any naming collisions during provisioning with existing resources.
+&nbsp;&nbsp;&nbsp; We might recommend using a sandbox or trial account (ie. A Cloud Guru Playground) when initially using the project.
+  * This protects users from accidently causing any risk/issues with their existing environments/configurations.
+  * Using a sandbox account can also prevent any naming collisions during provisioning with their existing resources.
 
 <br>
 
-&nbsp;&nbsp;&nbsp; There are a lot of opportunities for optimizing the configuration management for this project. (This was intentional!)
+&nbsp;&nbsp;&nbsp; There are a lot of opportunities for optimizing the config for this project. (This was intentional!)
   * This project was intended for testing purposes of sample Infra Code, which is used to illustrate how you might structure your project.
 
 <br>
@@ -122,11 +125,13 @@ This repository serves as an example project where you can experiment with diffe
 <br>
 
 &nbsp;&nbsp;&nbsp; **Required for Method 1**
+* git (v2.x)
+* jq (any version)
+* make (any version)
 * aws-cli (v2.7) 
 * terramate (v0.1.35+)
 * terraform (v1.2.9+)
 * kubectl (v1.19+)
-* jq (any version)
 
 <br>
 
@@ -159,6 +164,7 @@ terramate generate
 git add -A
 
 # Terraform Provisioning
+cd stacks/local
 terramate run -- terraform init
 terramate run -- terraform apply
 ```
@@ -219,6 +225,9 @@ eks-creds
 
 <br><br><br>
 
+## Project Exercises:
+<br>
+
 ### Using Fairwinds Pluto:
 <br>
 
@@ -252,8 +261,19 @@ kubectl scale deployment inflate --replicas 0
 
 #### Creates an EC2 Snapshot from existing Volume (example using KubeCost)
 ```
+# Returns the PVC ID from the Persistent Volune
 PVC_ID=$(kubectl -n kubecost get pv -o json | jq -r '.items[1].metadata.name')
+
+# Note: If the following command doesn't return a value for VOLUME_ID it's likely the volume is already managed by the new
+#  EBS CSI, which is the new default gp3 StorageClass. If this occurs please use this "alternate" command to continue exercise.
+
+# Use this for gp2 volume types
 VOLUME_ID=$(kubectl get pv $PVC_ID -o jsonpath='{.spec.awsElasticBlockStore.volumeID}' | rev | cut -d'/' -f 1 | rev)
+
+# Alternate command for use with gp3 volume types
+VOLUME_ID=$(kubectl get pv $PVC_ID -o jsonpath='{.spec.csi.volumeHandle}' | rev | cut -d'/' -f 1 | rev)
+
+# Creates the Snapshot from the Volume / Persistent Volume
 SNAPSHOT_RESPONSE=$(aws ec2 create-snapshot --volume-id $VOLUME_ID --tag-specifications 'ResourceType=snapshot,Tags=[{Key="ec2:ResourceTag/ebs.csi.aws.com/cluster",Value="true"}]')
 ```
 
@@ -317,6 +337,10 @@ spec:
 EOF
 ```
 
+#### Patch Deployment with new Volunme Claim
+```
+kubectl -n kubecost patch deployment kubecost-cost-analyzer --patch '{"spec": {"template": {"spec": {"volumes": [{"name": "persistent-configs", "persistentVolumeClaim": { "claimName": "imported-aws-snapshot-pvc"}}]}}}}'
+```
 
 <br><br><br>
 
@@ -348,9 +372,10 @@ terramate run -- pluralith run plan --title "Stack" --show-changes=false --show-
 
 <br><br><br>
 
-### Destroy Provisioned Infrastructure:
+## Cleanup
 <br>
 
+#### Destroy Provisioned Infrastructure:
 ```
 terramate run --reverse -- terraform destroy
 ```

@@ -2,18 +2,19 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: csi-provisioner
-  namespace: default
+  namespace: kube-system
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: csi-snapshotter
+  namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: external-provisioner-cfg
-  namespace: default
+  namespace: kube-system
 rules:
 - apiGroups:
   - coordination.k8s.io
@@ -31,7 +32,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: external-snapshotter-leaderelection
-  namespace: default
+  namespace: kube-system
 rules:
 - apiGroups:
   - coordination.k8s.io
@@ -178,7 +179,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: csi-provisioner-role-cfg
-  namespace: default
+  namespace: kube-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -186,13 +187,13 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: csi-provisioner
-  namespace: default
+  namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: csi-snapshotter-provisioner-role-cfg
-  namespace: default
+  namespace: kube-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -200,13 +201,13 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: csi-snapshotter
-  namespace: default
+  namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: external-snapshotter-leaderelection
-  namespace: default
+  namespace: kube-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -214,7 +215,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: csi-snapshotter
-  namespace: default
+  namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -227,7 +228,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: csi-provisioner
-  namespace: default
+  namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -240,7 +241,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: csi-snapshotter
-  namespace: default
+  namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -253,7 +254,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: csi-snapshotter
-  namespace: default
+  namespace: kube-system
 ---
 apiVersion: v1
 kind: Service
@@ -261,6 +262,7 @@ metadata:
   labels:
     app: csi-snapshotter
   name: csi-snapshotter
+  namespace: kube-system
 spec:
   ports:
   - name: dummy
@@ -272,6 +274,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: csi-snapshotter
+  namespace: kube-system
 spec:
   replicas: 1
   selector:

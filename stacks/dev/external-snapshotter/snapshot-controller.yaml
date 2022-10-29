@@ -110,6 +110,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: snapshot-controller
+  namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
