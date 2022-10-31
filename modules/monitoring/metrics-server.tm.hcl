@@ -4,15 +4,15 @@ generate_hcl "_terramate_generated_metrics-server.tf" {
   content {
 
     resource "helm_release" "metrics-server" {
-      namespace        = local.namespace_name
-      create_namespace = false
+      namespace        = global.helm_chart_metrics-server.namespace
+      create_namespace = true
 
       wait = true
 
-      name       = "metrics-server"
+      name       = global.helm_chart_metrics-server.releaseName
       repository = "https://kubernetes-sigs.github.io/metrics-server/"
       chart      = "metrics-server"
-      version    = "3.8.2"
+      version    = global.helm_chart_metrics-server.version
 
       # values = tolist([
       #   <<-YAML

@@ -593,15 +593,15 @@ generate_hcl "_terramate_generated_eks.tf" {
     }
 
     resource "helm_release" "karpenter" {
-      namespace        = "karpenter"
+      namespace        = global.helm_chart_karpenter.namespace
       create_namespace = true
 
       wait = true
 
-      name       = "karpenter"
+      name       = global.helm_chart_karpenter.releaseName
       repository = "oci://public.ecr.aws/karpenter"
       chart      = "karpenter"
-      version    = "v0.18.0"
+      version    = global.helm_chart_karpenter.version
 
       set {
         name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"

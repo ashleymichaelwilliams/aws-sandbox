@@ -3,12 +3,12 @@
 
 resource "helm_release" "kube-prometheus-stack" {
   chart            = "kube-prometheus-stack"
-  create_namespace = false
+  create_namespace = true
   depends_on = [
     kubernetes_namespace.monitoring,
   ]
   name       = "kube-prometheus-stack"
-  namespace  = local.namespace_name
+  namespace  = "monitoring"
   repository = "https://prometheus-community.github.io/helm-charts"
   version    = "41.4.1"
   wait       = true

@@ -78,15 +78,7 @@ generate_hcl "_terramate_generated_monitoring.tf" {
     }
 
     locals {
-      name           = global.eks_cluster_name
-      namespace_name = "monitoring"
-    }
-
-
-    resource "kubernetes_namespace" "monitoring" {
-      metadata {
-        name = local.namespace_name
-      }
+      name = global.eks_cluster_name
     }
 
   }

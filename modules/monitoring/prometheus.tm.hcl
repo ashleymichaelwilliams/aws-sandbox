@@ -4,15 +4,15 @@ generate_hcl "_terramate_generated_kube-prometheus-stack.tf" {
   content {
 
     resource "helm_release" "kube-prometheus-stack" {
-      namespace        = local.namespace_name
-      create_namespace = false
+      namespace        = global.helm_chart_prometheus.namespace
+      create_namespace = true
 
       wait = true
 
-      name       = "kube-prometheus-stack"
+      name       = global.helm_chart_prometheus.releaseName
       repository = "https://prometheus-community.github.io/helm-charts"
       chart      = "kube-prometheus-stack"
-      version    = "41.4.1"
+      version    = global.helm_chart_prometheus.version
 
       # values = tolist([
       #   <<-YAML

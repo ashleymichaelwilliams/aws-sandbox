@@ -1,5 +1,5 @@
 // TERRAMATE: GENERATED AUTOMATICALLY DO NOT EDIT
-// TERRAMATE: originated from generate_hcl block on /modules/monitoring/monitoring.tm.hcl
+// TERRAMATE: originated from generate_hcl block on /modules/crossplane/crossplane.tm.hcl
 
 provider "kubernetes" {
   cluster_ca_certificate = base64decode(data.terraform_remote_state.eks.outputs.cluster_certificate_authority_data)
@@ -33,4 +33,13 @@ provider "helm" {
 }
 locals {
   name = "ex-eks"
+}
+resource "helm_release" "crossplane" {
+  chart            = "crossplane"
+  create_namespace = true
+  name             = "crossplane"
+  namespace        = "crossplane"
+  repository       = "https://charts.crossplane.io/stable"
+  version          = "1.10.0"
+  wait             = true
 }

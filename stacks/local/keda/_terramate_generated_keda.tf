@@ -1,5 +1,5 @@
 // TERRAMATE: GENERATED AUTOMATICALLY DO NOT EDIT
-// TERRAMATE: originated from generate_hcl block on /modules/monitoring/monitoring.tm.hcl
+// TERRAMATE: originated from generate_hcl block on /modules/keda/keda.tm.hcl
 
 provider "kubernetes" {
   cluster_ca_certificate = base64decode(data.terraform_remote_state.eks.outputs.cluster_certificate_authority_data)
@@ -33,4 +33,13 @@ provider "helm" {
 }
 locals {
   name = "ex-eks"
+}
+resource "helm_release" "keda" {
+  chart            = "keda"
+  create_namespace = true
+  name             = "keda"
+  namespace        = "keda"
+  repository       = "https://kedacore.github.io/charts"
+  version          = "2.8.2"
+  wait             = true
 }

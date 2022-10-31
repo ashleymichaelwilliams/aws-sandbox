@@ -32,11 +32,5 @@ provider "helm" {
   }
 }
 locals {
-  name           = "ex-eks"
-  namespace_name = "monitoring"
-}
-resource "kubernetes_namespace" "monitoring" {
-  metadata {
-    name = local.namespace_name
-  }
+  name = "ex-eks"
 }

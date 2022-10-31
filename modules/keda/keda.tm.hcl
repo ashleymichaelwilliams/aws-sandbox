@@ -15,7 +15,6 @@ generate_hcl "_terramate_generated_data-source.tf" {
         cluster_id                         = "ex-eks"
         cluster_endpoint                   = "https://ABCDEFGHIJKLMNOPQRSTUVWXYZ.gr7.us-west-2.eks.amazonaws.com"
         cluster_certificate_authority_data = "dGhpcyBpcyB0ZXN0IGRhdGEuLi4K"
-        oidc_provider_arn                  = "arn:aws:iam::1234567890:oidc-provider/oidc.eks.us-west-2.amazonaws.com/id/A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0UVWXYZ"
       }
     }
   }
@@ -41,15 +40,14 @@ generate_hcl "_terramate_generated_data-source.tf" {
         cluster_id                         = "ex-eks"
         cluster_endpoint                   = "https://ABCDEFGHIJKLMNOPQRSTUVWXYZ.gr7.us-west-2.eks.amazonaws.com"
         cluster_certificate_authority_data = "dGhpcyBpcyB0ZXN0IGRhdGEuLi4K"
-        oidc_provider_arn                  = "arn:aws:iam::1234567890:oidc-provider/oidc.eks.us-west-2.amazonaws.com/id/A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0UVWXYZ"
       }
     }
   }
 }
 
 
-# Generate '_terramate_generated_alb-controller.tf' in each stack
-generate_hcl "_terramate_generated_alb-controller.tf" {
+# Generate '_terramate_generated_keda.tf' in each stack
+generate_hcl "_terramate_generated_keda.tf" {
   content {
 
     provider "kubernetes" {
@@ -85,67 +83,40 @@ generate_hcl "_terramate_generated_alb-controller.tf" {
     }
 
 
-    resource "kubernetes_service_account" "alb_control_service_account" {
-      metadata {
-        name      = "aws-load-balancer-controller"
-        namespace = "kube-system"
-        annotations = {
-          "eks.amazonaws.com/role-arn" = module.alb_irsa.iam_role_arn
-        }
-        labels = {
-          "app.kubernetes.io/component" = "controller"
-          "app.kubernetes.io/name"      = "aws-load-balancer-controller"
-        }
-      }
-
-      automount_service_account_token = true
-
-    }
-
-
-    module "alb_irsa" {
-      source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-      version = "~> 4.21.1"
-
-      role_name = "alb-controller-${local.name}"
-
-      attach_load_balancer_controller_policy = true
-
-      oidc_providers = {
-        main = {
-          provider_arn               = data.terraform_remote_state.eks.outputs.oidc_provider_arn
-          namespace_service_accounts = ["kube-system:aws-load-balancer-controller"]
-        }
-      }
-    }
-
-    resource "helm_release" "alb" {
-      namespace        = global.helm_chart_alb-controller.namespace
-      create_namespace = false
+    resource "helm_release" "keda" {
+      namespace        = global.helm_chart_keda.namespace
+      create_namespace = true
 
       wait = true
 
-      name       = global.helm_chart_alb-controller.releaseName
-      repository = "https://aws.github.io/eks-charts"
-      chart      = "aws-load-balancer-controller"
-      version    = global.helm_chart_alb-controller.version
+      name       = global.helm_chart_keda.releaseName
+      repository = "https://kedacore.github.io/charts"
+      chart      = "keda"
+      version    = global.helm_chart_keda.version
 
-      set {
-        name  = "clusterName"
-        value = data.terraform_remote_state.eks.outputs.cluster_id
-      }
+      # values = tolist([
+      #   <<-YAML
+      #   redis-ha:
+      #     enabled: true
 
-      set {
-        name  = "serviceAccount.create"
-        value = false
-      }
+      #   controller:
+      #     replicas: 1
 
-      set {
-        name  = "serviceAccount.name"
-        value = "aws-load-balancer-controller"
-      }
+      #   server:
+      #     autoscaling:
+      #       enabled: true
+      #       minReplicas: 2
+
+      #   repoServer:
+      #     autoscaling:
+      #       enabled: true
+      #       minReplicas: 2
+
+      #   applicationSet:
+      #     replicaCount: 2
+      #   YAML
+      # ])
     }
-
 
   }
 }

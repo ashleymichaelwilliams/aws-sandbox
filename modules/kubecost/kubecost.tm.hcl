@@ -84,15 +84,15 @@ generate_hcl "_terramate_generated_kubecost.tf" {
 
 
     resource "helm_release" "kubecost" {
-      namespace        = "kubecost"
+      namespace        = global.helm_chart_kubecost.namespace
       create_namespace = true
 
       wait = true
 
-      name       = "kubecost"
+      name       = global.helm_chart_kubecost.releaseName
       repository = "https://kubecost.github.io/cost-analyzer/"
       chart      = "cost-analyzer"
-      version    = "1.97.0"
+      version    = global.helm_chart_kubecost.version
 
       values = tolist([
         <<-YAML
