@@ -79,44 +79,82 @@ generate_hcl "_terramate_generated_velero.tf" {
 
 
     locals {
-      name = global.eks_cluster_name
+      name   = global.eks_cluster_name
+      region = global.region
     }
 
 
-    resource "helm_release" "velero" {
-      namespace        = global.helm_chart_velero.namespace
-      create_namespace = true
+    module "velero" {
+      source  = "terraform-module/velero/kubernetes"
+      version = "~> 1"
 
-      wait = true
+      count = 1
 
-      name       = global.helm_chart_velero.releaseName
-      repository = "https://vmware-tanzu.github.io/helm-charts"
-      chart      = "velero"
-      version    = global.helm_chart_velero.version
+      namespace_deploy            = true
+      app_deploy                  = true
+      cluster_name                = global.eks_cluster_name
+      openid_connect_provider_uri = replace(data.terraform_remote_state.eks.outputs.cluster_oidc_issuer_url, "https://", "")
+      
+      bucket                      = "velero-backups-ex-eks"
+      app = {
+        name          = global.helm_chart_velero.releaseName
+        version       = global.helm_chart_velero.version
+        chart         = "velero"
+        force_update  = false
+        wait          = true
+        recreate_pods = true
+        deploy        = false
+        max_history   = 1
+        image         = null
+        tag           = null
+      }
+      tags = {}
 
-      # values = tolist([
-      #   <<-YAML
-      #   redis-ha:
-      #     enabled: true
-
-      #   controller:
-      #     replicas: 1
-
-      #   server:
-      #     autoscaling:
-      #       enabled: true
-      #       minReplicas: 2
-
-      #   repoServer:
-      #     autoscaling:
-      #       enabled: true
-      #       minReplicas: 2
-
-      #   applicationSet:
-      #     replicaCount: 2
-      #   YAML
-      # ])
+      values = tolist([
+        <<-EOF
+        initContainers:
+          - name: velero-plugin-for-aws
+            image: velero/velero-plugin-for-aws:v1.4.1
+            imagePullPolicy: IfNotPresent
+            volumeMounts:
+              - mountPath: /target
+                name: plugins
+        installCRDs: true
+        securityContext:
+          fsGroup: 1337
+        configuration:
+          provider: aws
+          backupStorageLocation:
+            name: default
+            provider: aws
+            bucket: "velero-backups-${local.name}"
+            prefix: "velero/sandbox/velero-backups-${local.name}"
+            config:
+              region: ${local.region}
+          volumeSnapshotLocation:
+            name: default
+            provider: aws
+            config:
+              region: ${local.region}
+          backupSyncPeriod:
+          resticTimeout:
+          restoreResourcePriorities:
+          restoreOnlyMode:
+          extraEnvVars:
+            AWS_CLUSTER_NAME: ${local.name}
+          logLevel: info
+        rbac:
+          create: true
+          clusterAdministrator: true
+        credentials:
+          useSecret: false
+        backupsEnabled: true
+        snapshotsEnabled: true
+        deployRestic: true
+        EOF
+      ])
     }
+
 
   }
 }

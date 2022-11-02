@@ -97,23 +97,27 @@ generate_hcl "_terramate_generated_argo-cd.tf" {
       values = tolist([
         <<-YAML
         redis-ha:
-          enabled: true
+          enabled: false
 
         controller:
           replicas: 1
 
         server:
           autoscaling:
-            enabled: true
-            minReplicas: 2
+            enabled: false
+            minReplicas: 1
 
         repoServer:
           autoscaling:
-            enabled: true
-            minReplicas: 2
+            enabled: false
+            minReplicas: 1
 
         applicationSet:
-          replicaCount: 2
+          replicaCount: 1
+        
+        configs:
+          cm:
+            create: false
         YAML
       ])
     }

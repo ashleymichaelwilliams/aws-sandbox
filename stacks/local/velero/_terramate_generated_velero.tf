@@ -32,14 +32,73 @@ provider "helm" {
   }
 }
 locals {
-  name = "ex-eks"
+  name   = "ex-eks"
+  region = "us-west-2"
 }
-resource "helm_release" "velero" {
-  chart            = "velero"
-  create_namespace = true
-  name             = "velero"
-  namespace        = "velero"
-  repository       = "https://vmware-tanzu.github.io/helm-charts"
-  version          = "2.32.1"
-  wait             = true
+module "velero" {
+  app = {
+    name          = "velero"
+    version       = "2.32.1"
+    chart         = "velero"
+    force_update  = false
+    wait          = true
+    recreate_pods = true
+    deploy        = false
+    max_history   = 1
+    image         = null
+    tag           = null
+  }
+  app_deploy                  = true
+  bucket                      = "velero-backups-ex-eks"
+  cluster_name                = "ex-eks"
+  count                       = 1
+  namespace_deploy            = true
+  openid_connect_provider_uri = replace(data.terraform_remote_state.eks.outputs.cluster_oidc_issuer_url, "https://", "")
+  source                      = "terraform-module/velero/kubernetes"
+  tags                        = {}
+  values = tolist([
+    <<-EOF
+        initContainers:
+          - name: velero-plugin-for-aws
+            image: velero/velero-plugin-for-aws:v1.4.1
+            imagePullPolicy: IfNotPresent
+            volumeMounts:
+              - mountPath: /target
+                name: plugins
+        installCRDs: true
+        securityContext:
+          fsGroup: 1337
+        configuration:
+          provider: aws
+          backupStorageLocation:
+            name: default
+            provider: aws
+            bucket: "velero-backups-${local.name}"
+            prefix: "velero/sandbox/velero-backups-${local.name}"
+            config:
+              region: ${local.region}
+          volumeSnapshotLocation:
+            name: default
+            provider: aws
+            config:
+              region: ${local.region}
+          backupSyncPeriod:
+          resticTimeout:
+          restoreResourcePriorities:
+          restoreOnlyMode:
+          extraEnvVars:
+            AWS_CLUSTER_NAME: ${local.name}
+          logLevel: info
+        rbac:
+          create: true
+          clusterAdministrator: true
+        credentials:
+          useSecret: false
+        backupsEnabled: true
+        snapshotsEnabled: true
+        deployRestic: true
+        EOF
+    ,
+  ])
+  version = "~> 1"
 }

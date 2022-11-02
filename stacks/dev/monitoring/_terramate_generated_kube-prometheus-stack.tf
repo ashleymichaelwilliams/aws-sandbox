@@ -5,7 +5,7 @@ resource "helm_release" "kube-prometheus-stack" {
   chart            = "kube-prometheus-stack"
   create_namespace = true
   depends_on = [
-    kubernetes_namespace.monitoring,
+    helm_release.metrics-server,
   ]
   name       = "kube-prometheus-stack"
   namespace  = "monitoring"

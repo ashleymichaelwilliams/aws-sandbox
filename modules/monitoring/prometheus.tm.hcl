@@ -40,9 +40,8 @@ generate_hcl "_terramate_generated_kube-prometheus-stack.tf" {
       # ])
 
       depends_on = [
-        kubernetes_namespace.monitoring
+        helm_release.metrics-server
       ]
     }
-
   }
 }

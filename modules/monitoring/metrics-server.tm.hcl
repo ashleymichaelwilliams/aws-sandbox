@@ -39,9 +39,6 @@ generate_hcl "_terramate_generated_metrics-server.tf" {
       #   YAML
       # ])
 
-      depends_on = [
-        kubernetes_namespace.monitoring
-      ]
     }
 
   }
