@@ -15,8 +15,8 @@ RUN apt-get -y update && \
      apt-get -y install wget curl git python3-pip build-essential nodejs npm
 
 
-# Install awscli via Python Package Manager
-RUN pip install awscli --ignore-installed six
+# Installs Latest AWS-cli v2 Package
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip -u awscliv2.zip && ./aws/install &&  cd .. && rm -rf .aws/ awscliv2.zip
 
 # Install Pluralith
 RUN curl https://raw.githubusercontent.com/Pluralith/pluralith-cli/dev/scripts/install.sh | sh
